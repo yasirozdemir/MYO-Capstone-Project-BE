@@ -8,6 +8,7 @@ import {
   notFoundHandler,
   unauthorizedHandler,
 } from "./errorHandlers";
+import UsersRouter from "./api/users";
 
 const expressServer = express();
 
@@ -31,6 +32,7 @@ expressServer.use(cors(corsOptions));
 expressServer.use(express.json());
 
 // ROUTERS
+expressServer.use("/users", UsersRouter);
 
 expressServer.use(badRequestHandler);
 expressServer.use(unauthorizedHandler);

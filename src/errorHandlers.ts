@@ -46,7 +46,7 @@ export const genericErrorHandler: ErrorRequestHandler = (
 ) => {
   console.log(err);
   res.status(500).send({
-    message:
-      "Server error, please contact with the developer team! Mail to: muhamemdyasirozdemircareer@gmail.com",
+    message: "Server error, please contact with the developer team!",
+    contact: "muhammedyasirozdemircareer@gmail.com",
   });
 };
