@@ -9,8 +9,11 @@ import {
   unauthorizedHandler,
 } from "./errorHandlers";
 import UsersRouter from "./api/users";
+// import passport from "passport";
+// import googleStrategy from "./lib/auth/googleOauth";
 
 const expressServer = express();
+// passport.use("google", googleStrategy);
 
 const whiteList = [process.env.FE_DEV_URL, process.env.FE_PROD_URL];
 const corsOptions: CorsOptions = {

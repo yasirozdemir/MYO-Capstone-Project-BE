@@ -2,8 +2,10 @@ import createHttpError from "http-errors";
 import express from "express";
 import UsersModel from "./model";
 import { avatarUploader } from "../../lib/cloudinary";
-import { JWTTokenAuth, UserRequest } from "../../lib/auth/jwt";
+import { IUserRequest, JWTTokenAuth } from "../../lib/auth/jwt";
 import { createAccessToken, createRefreshToken } from "../../lib/auth/tools";
+import passport from "passport";
+import { IGoogleLoginReq } from "../../lib/auth/googleOauth";
 
 const UsersRouter = express.Router();
 
@@ -39,6 +41,26 @@ UsersRouter.post("/login", async (req, res, next) => {
   }
 });
 
+// Login with Google
+UsersRouter.post(
+  "/googleLogin",
+  passport.authenticate("google", {
+    session: false,
+    scope: ["profile", "email"],
+  }),
+  async (req, res, next) => {
+    try {
+      res.redirect(
+        `${process.env.FE_DEV_URL}/?accessToken=${
+          (req.user as IGoogleLoginReq).accessToken
+        }`
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 // Get all the users in the DB
 UsersRouter.get("/", JWTTokenAuth, async (req, res, next) => {
   try {
@@ -57,7 +79,7 @@ UsersRouter.post(
   async (req, res, next) => {
     try {
       if (req.file) {
-        await UsersModel.findByIdAndUpdate((req as UserRequest).user!._id, {
+        await UsersModel.findByIdAndUpdate((req as IUserRequest).user!._id, {
           avatar: req.file.path,
         });
         res.send({ avatarURL: req.file.path });

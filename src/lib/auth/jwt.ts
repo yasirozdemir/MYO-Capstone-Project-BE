@@ -2,7 +2,7 @@ import createHttpError from "http-errors";
 import { RequestHandler, Request } from "express";
 import { verifyAccessToken, TokenPayload } from "./tools";
 
-export interface UserRequest extends Request {
+export interface IUserRequest extends Request {
   user?: TokenPayload;
 }
 
