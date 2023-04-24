@@ -26,7 +26,7 @@ UsersRouter.post("/", async (req, res, next) => {
 });
 
 // Login
-UsersRouter.post("/login", async (req, res, next) => {
+UsersRouter.post("/session", async (req, res, next) => {
   try {
     const { email, password } = req.body;
     const user = await UsersModel.checkCredentials(email, password);
@@ -60,6 +60,18 @@ UsersRouter.post(
     }
   }
 );
+
+// Log out
+UsersRouter.delete("/session", JWTTokenAuth, async (req, res, next) => {
+  try {
+    await UsersModel.findByIdAndUpdate((req as IUserRequest).user!._id, {
+      refreshToken: "",
+    });
+    res.send();
+  } catch (error) {
+    next(error);
+  }
+});
 
 // Get all the users in the DB
 UsersRouter.get("/", JWTTokenAuth, async (req, res, next) => {
