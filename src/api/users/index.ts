@@ -2,6 +2,8 @@ import createHttpError from "http-errors";
 import express from "express";
 import UsersModel from "./model";
 import { avatarUploader } from "../../lib/cloudinary";
+import { JWTTokenAuth, UserRequest } from "../../lib/auth/jwt";
+import { createAccessToken, createRefreshToken } from "../../lib/auth/tools";
 
 const UsersRouter = express.Router();
 
@@ -21,8 +23,24 @@ UsersRouter.post("/", async (req, res, next) => {
   }
 });
 
+// Login
+UsersRouter.post("/login", async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+    const user = await UsersModel.checkCredentials(email, password);
+    if (user) {
+      const payload = { _id: user._id, email: user.email };
+      const accessToken = await createAccessToken(payload);
+      const refreshToken = await createRefreshToken(payload);
+      res.send({ user, accessToken, refreshToken });
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
 // Get all the users in the DB
-UsersRouter.get("/", async (req, res, next) => {
+UsersRouter.get("/", JWTTokenAuth, async (req, res, next) => {
   try {
     const users = await UsersModel.find();
     res.send(users);
@@ -32,19 +50,24 @@ UsersRouter.get("/", async (req, res, next) => {
 });
 
 // Upload a profile picture
-UsersRouter.post("/me/avatar", avatarUploader, async (req, res, next) => {
-  try {
-    if (req.file) {
-      // await UsersModel.findByIdAndUpdate((req as UserRequest).user!._id, {
-      //   avatar: req.file.path,
-      // });
-      res.send({ avatarURL: req.file.path });
-    } else {
-      next(createHttpError(400, "Please provide an image file!"));
+UsersRouter.post(
+  "/me/avatar",
+  JWTTokenAuth,
+  avatarUploader,
+  async (req, res, next) => {
+    try {
+      if (req.file) {
+        await UsersModel.findByIdAndUpdate((req as UserRequest).user!._id, {
+          avatar: req.file.path,
+        });
+        res.send({ avatarURL: req.file.path });
+      } else {
+        next(createHttpError(400, "Please provide an image file!"));
+      }
+    } catch (error) {
+      next(error);
     }
-  } catch (error) {
-    next(error);
   }
-});
+);
 
 export default UsersRouter;

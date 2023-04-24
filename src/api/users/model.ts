@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import { IUserDocument, IUsersModel } from "../../interfaces/IUser";
+import createHttpError from "http-errors";
 const { Schema, model } = mongoose;
 
 const UsersSchema = new Schema({
@@ -46,8 +47,8 @@ UsersSchema.static("checkCredentials", async function (email, pw) {
   if (user) {
     const passwordMatch = await bcrypt.compare(pw, user.password);
     if (passwordMatch) return user;
-    else return null;
-  } else return null;
+    else throw new createHttpError[401]("Wrong password!");
+  } else throw new createHttpError[401]("There's no user matching this email!");
 });
 
 export default model<IUserDocument, IUsersModel>("user", UsersSchema);
