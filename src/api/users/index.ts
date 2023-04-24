@@ -5,7 +5,7 @@ import { avatarUploader } from "../../lib/cloudinary";
 import { IUserRequest, JWTTokenAuth } from "../../lib/auth/jwt";
 import { createAccessToken, createRefreshToken } from "../../lib/auth/tools";
 import passport from "passport";
-import { IGoogleLoginReq } from "../../lib/auth/googleOauth";
+import { IGoogleLoginReq } from "../../lib/auth/googleOAuth";
 
 const UsersRouter = express.Router();
 
@@ -78,6 +78,44 @@ UsersRouter.get("/", JWTTokenAuth, async (req, res, next) => {
   try {
     const users = await UsersModel.find();
     res.send(users);
+  } catch (error) {
+    next(error);
+  }
+});
+
+//  Get users own info
+UsersRouter.get("/me", JWTTokenAuth, async (req, res, next) => {
+  try {
+    const user = await UsersModel.findById((req as IUserRequest).user!._id);
+    res.send(user);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Edit user
+UsersRouter.put("/me", JWTTokenAuth, async (req, res, next) => {
+  try {
+    const user = await UsersModel.findOneAndUpdate(
+      { _id: (req as IUserRequest).user!._id },
+      req.body,
+      { new: true, runValidators: true }
+    );
+    res.send(user);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Get a user by their ID
+UsersRouter.get("/:userID", JWTTokenAuth, async (req, res, next) => {
+  try {
+    const user = await UsersModel.findById(req.params.userID);
+    if (user) res.send(user);
+    else
+      next(
+        createHttpError(404, `User with ID ${req.params.userID} not found!`)
+      );
   } catch (error) {
     next(error);
   }
