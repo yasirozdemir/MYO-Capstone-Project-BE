@@ -1,6 +1,7 @@
 import createHttpError from "http-errors";
 import express from "express";
 import UsersModel from "./model";
+import { avatarUploader } from "../../lib/cloudinary";
 
 const UsersRouter = express.Router();
 
@@ -25,6 +26,22 @@ UsersRouter.get("/", async (req, res, next) => {
   try {
     const users = await UsersModel.find();
     res.send(users);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Upload a profile picture
+UsersRouter.post("/me/avatar", avatarUploader, async (req, res, next) => {
+  try {
+    if (req.file) {
+      // await UsersModel.findByIdAndUpdate((req as UserRequest).user!._id, {
+      //   avatar: req.file.path,
+      // });
+      res.send({ avatarURL: req.file.path });
+    } else {
+      next(createHttpError(400, "Please provide an image file!"));
+    }
   } catch (error) {
     next(error);
   }
