@@ -4,6 +4,7 @@ import { IUser } from "./IUser";
 export interface IPlaylist {
   _id: string;
   name: string;
+  cover: string;
   user: IUser;
   songs: Array<ISong>;
 }
