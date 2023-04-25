@@ -16,7 +16,13 @@ UsersRouter.post("/", async (req, res, next) => {
     if (!emailInUse) {
       const newUser = new UsersModel(req.body);
       const user = await newUser.save();
-      res.status(201).send({ _id: user._id });
+      const payload = { _id: user._id, email: user.email };
+      const accessToken = await createAccessToken(payload);
+      const refreshToken = await createRefreshToken(payload);
+      await UsersModel.findByIdAndUpdate(user._id, {
+        refreshToken: refreshToken,
+      });
+      res.status(201).send({ user, accessToken, refreshToken });
     } else {
       next(createHttpError(400, "The email is already in use!"));
     }
@@ -34,6 +40,9 @@ UsersRouter.post("/session", async (req, res, next) => {
       const payload = { _id: user._id, email: user.email };
       const accessToken = await createAccessToken(payload);
       const refreshToken = await createRefreshToken(payload);
+      await UsersModel.findByIdAndUpdate(user._id, {
+        refreshToken: refreshToken,
+      });
       res.send({ user, accessToken, refreshToken });
     }
   } catch (error) {

@@ -1,8 +1,7 @@
-import mongoose from "mongoose";
+import mongoose, { Schema, model } from "mongoose";
 import bcrypt from "bcrypt";
 import { IUserDocument, IUsersModel } from "../../interfaces/IUser";
 import createHttpError from "http-errors";
-const { Schema, model } = mongoose;
 
 const UsersSchema = new Schema({
   fullName: { type: String, required: true },

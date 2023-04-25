@@ -9,6 +9,7 @@ import {
   unauthorizedHandler,
 } from "./errorHandlers";
 import UsersRouter from "./api/users";
+import PlaylistsRouter from "./api/playlists";
 // import passport from "passport";
 // import googleStrategy from "./lib/auth/googleOauth";
 
@@ -36,6 +37,7 @@ expressServer.use(express.json());
 
 // ROUTERS
 expressServer.use("/users", UsersRouter);
+expressServer.use("/playlists", PlaylistsRouter);
 
 expressServer.use(badRequestHandler);
 expressServer.use(unauthorizedHandler);
