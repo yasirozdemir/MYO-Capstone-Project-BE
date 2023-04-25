@@ -48,11 +48,49 @@ SongsRouter.post("/:playlistID/songs", JWTTokenAuth, async (req, res, next) => {
 });
 
 // Remove a Song from a Playlist
-SongsRouter.delete("/:playlistID/songs", async (req, res, next) => {
-  try {
-  } catch (error) {
-    next(error);
+SongsRouter.delete(
+  "/:playlistID/songs/:songID",
+  JWTTokenAuth,
+  async (req, res, next) => {
+    try {
+      const playlist = (await PlaylistsModel.findById(
+        req.params.playlistID
+      )) as IPlaylist;
+      if (playlist) {
+        if (playlist.user.toString() === (req as IUserRequest).user!._id) {
+          const song = playlist.songs.find(
+            (song) => song.id === req.params.songID
+          );
+          if (song) {
+            const updatedPlaylist = await PlaylistsModel.findByIdAndUpdate(
+              req.params.playlistID,
+              { $pull: { songs: song } },
+              { new: true, runValidators: true }
+            );
+            res.send(updatedPlaylist);
+          } else {
+            next(createHttpError(400, "This song is not in your playlist!"));
+          }
+        } else {
+          next(
+            createHttpError(
+              401,
+              "This user does not have the permission to remove a song from this playlist!"
+            )
+          );
+        }
+      } else {
+        next(
+          createHttpError(
+            404,
+            `Playlist with the id ${req.params.playlistID} not found!`
+          )
+        );
+      }
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 export default SongsRouter;
