@@ -10,6 +10,7 @@ import {
 } from "./errorHandlers";
 import UsersRouter from "./api/users";
 import PlaylistsRouter from "./api/playlists";
+import SongsRouter from "./api/songs";
 // import passport from "passport";
 // import googleStrategy from "./lib/auth/googleOauth";
 
@@ -38,6 +39,7 @@ expressServer.use(express.json());
 // ROUTERS
 expressServer.use("/users", UsersRouter);
 expressServer.use("/playlists", PlaylistsRouter);
+expressServer.use("/playlists", SongsRouter);
 
 expressServer.use(badRequestHandler);
 expressServer.use(unauthorizedHandler);
