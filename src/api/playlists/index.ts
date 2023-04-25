@@ -78,6 +78,37 @@ PlaylistsRouter.put("/:playlistID", JWTTokenAuth, async (req, res, next) => {
   }
 });
 
+// Delete a Playlist
+PlaylistsRouter.delete("/:playlistID", JWTTokenAuth, async (req, res, next) => {
+  try {
+    const playlist = (await PlaylistsModel.findById(
+      req.params.playlistID
+    )) as IPlaylist;
+    if (playlist) {
+      if (playlist.user.toString() === (req as IUserRequest).user!._id) {
+        await PlaylistsModel.findByIdAndDelete(req.params.playlistID);
+        res.status(204).send();
+      } else {
+        next(
+          createHttpError(
+            401,
+            "This user does not have the permission to delete this playlist!"
+          )
+        );
+      }
+    } else {
+      next(
+        createHttpError(
+          404,
+          `Playlist with the id ${req.params.playlistID} not found!`
+        )
+      );
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
 // Get playlists of a User
 UsersRouter.get("/:userID/playlists", JWTTokenAuth, async (req, res, next) => {
   try {
