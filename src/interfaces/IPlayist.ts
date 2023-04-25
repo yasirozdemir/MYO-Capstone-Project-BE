@@ -8,6 +8,7 @@ export interface IPlaylist {
   cover: string;
   user: string;
   songs: Array<ISong>;
+  likes: Array<string>;
 }
 
 export interface IPlaylistDocument extends IUser, Document {}
