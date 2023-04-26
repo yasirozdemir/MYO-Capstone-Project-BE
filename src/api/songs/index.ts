@@ -1,6 +1,6 @@
 import express from "express";
 import PlaylistsModel from "../playlists/model";
-import { IPlaylist } from "../../interfaces/IPlayist";
+import { IPlaylist } from "../../interfaces/IPlaylist";
 import createHttpError from "http-errors";
 import { IUserRequest, JWTTokenAuth } from "../../lib/auth/jwt";
 

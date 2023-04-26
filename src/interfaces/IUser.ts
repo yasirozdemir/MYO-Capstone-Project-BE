@@ -1,5 +1,5 @@
 import { Model, Document } from "mongoose";
-import { IPlaylist } from "./IPlayist";
+import { IPlaylist } from "./IPlaylist";
 
 export interface IUser {
   fullName: string;
@@ -7,6 +7,7 @@ export interface IUser {
   avatar: string;
   refreshToken: string;
   playlists: IPlaylist[];
+  likedPlaylists: IPlaylist[];
 }
 
 export interface IUserDocument extends IUser, Document {}

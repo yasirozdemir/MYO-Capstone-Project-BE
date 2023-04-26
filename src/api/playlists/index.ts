@@ -1,9 +1,12 @@
 import express from "express";
 import PlaylistsModel from "./model";
+import UsersModel from "../users/model";
 import { IUserRequest, JWTTokenAuth } from "../../lib/auth/jwt";
 import UsersRouter from "../users";
 import createHttpError from "http-errors";
-import { IPlaylist } from "../../interfaces/IPlayist";
+import { IPlaylist } from "../../interfaces/IPlaylist";
+import { IUser } from "../../interfaces/IUser";
+import mongoose from "mongoose";
 
 const PlaylistsRouter = express.Router();
 
@@ -38,7 +41,14 @@ PlaylistsRouter.post("/me", JWTTokenAuth, async (req, res, next) => {
 PlaylistsRouter.get("/:playlistID", JWTTokenAuth, async (req, res, next) => {
   try {
     const playlist = await PlaylistsModel.findById(req.params.playlistID);
-    res.send(playlist);
+    if (playlist) res.send(playlist);
+    else
+      next(
+        createHttpError(
+          404,
+          `Playlist with ID ${req.params.playlistID} not found!`
+        )
+      );
   } catch (error) {
     next(error);
   }
@@ -120,5 +130,53 @@ UsersRouter.get("/:userID/playlists", JWTTokenAuth, async (req, res, next) => {
     next(error);
   }
 });
+
+// Like a playlist
+PlaylistsRouter.post(
+  "/:playlistID/likes",
+  JWTTokenAuth,
+  async (req, res, next) => {
+    try {
+      const userID = (req as IUserRequest).user!._id;
+      const playlist = (await PlaylistsModel.findById(
+        req.params.playlistID
+      )) as IPlaylist;
+      const user = (await UsersModel.findById(userID)) as IUser;
+      if (playlist) {
+        // isLike = false -> like
+        // isLike = true -> throw error
+        const isLiked =
+          playlist.likes.some((id) => id.toString() === userID) &&
+          user.likedPlaylists.some(
+            (playlistID) => playlistID.toString() === req.params.playlistID
+          );
+        if (!isLiked) {
+          await PlaylistsModel.findByIdAndUpdate(
+            req.params.playlistID,
+            {
+              $push: { likes: userID },
+            },
+            { new: true, runValidators: true }
+          );
+          await UsersModel.findByIdAndUpdate(userID, {
+            $push: { likedPlaylists: playlist._id },
+          });
+          res.send();
+        } else {
+          next(createHttpError(400, "You've already liked this playlist!"));
+        }
+      } else {
+        next(
+          createHttpError(
+            404,
+            `Playlist with ID ${req.params.playlistID} not found!`
+          )
+        );
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 export default PlaylistsRouter;

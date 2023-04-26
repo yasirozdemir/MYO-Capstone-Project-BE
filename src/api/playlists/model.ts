@@ -1,6 +1,7 @@
 import mongoose, { Schema, model } from "mongoose";
-import { IPlaylistDocument, IPlaylistsModel } from "../../interfaces/IPlayist";
+import { IPlaylistDocument, IPlaylistsModel } from "../../interfaces/IPlaylist";
 import { ISong } from "../../interfaces/ISong";
+import { IUser } from "../../interfaces/IUser";
 
 const PlaylistsSchema = new Schema(
   {
@@ -13,6 +14,7 @@ const PlaylistsSchema = new Schema(
     },
     user: { type: mongoose.Types.ObjectId, ref: "user" },
     songs: { type: Array<ISong>, default: [] },
+    likes: [{ type: mongoose.Types.ObjectId, ref: "user" }],
   },
   { timestamps: true }
 );
