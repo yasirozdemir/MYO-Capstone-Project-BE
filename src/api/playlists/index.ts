@@ -249,10 +249,9 @@ PlaylistsRouter.post(
         )) as IPlaylist;
         if (playlist) {
           if (playlist.user.toString() === userID) {
-            const updatedPlaylist = await PlaylistsModel.findByIdAndUpdate(
-              req.params.playlistID,
-              { cover: req.file.path }
-            );
+            await PlaylistsModel.findByIdAndUpdate(req.params.playlistID, {
+              cover: req.file.path,
+            });
             res.send({ coverURL: req.file.path });
           } else {
             next(
@@ -279,4 +278,42 @@ PlaylistsRouter.post(
   }
 );
 
+// Remove the cover of a Playlist
+PlaylistsRouter.delete(
+  "/:playlistID/cover",
+  JWTTokenAuth,
+  async (req, res, next) => {
+    try {
+      const userID = (req as IUserRequest).user!._id;
+      const playlist = (await PlaylistsModel.findById(
+        req.params.playlistID
+      )) as IPlaylist;
+      if (playlist) {
+        if (playlist.user.toString() === userID) {
+          await PlaylistsModel.findByIdAndUpdate(req.params.playlistID, {
+            cover:
+              "https://static.vecteezy.com/system/resources/previews/000/421/044/large_2x/music-note-icon-vector-illustration.jpg",
+          });
+          res.status(204).send();
+        } else {
+          next(
+            createHttpError(
+              401,
+              "This user does not have the permission to remove the cover of this playlist!"
+            )
+          );
+        }
+      } else {
+        next(
+          createHttpError(
+            404,
+            `Playlist with the ID ${req.params.playlistID} not found!`
+          )
+        );
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 export default PlaylistsRouter;
