@@ -6,6 +6,7 @@ import UsersRouter from "../users";
 import createHttpError from "http-errors";
 import { IPlaylist } from "../../interfaces/IPlaylist";
 import { IUser } from "../../interfaces/IUser";
+import { coverUploader } from "../../lib/cloudinary";
 
 const PlaylistsRouter = express.Router();
 
@@ -49,7 +50,7 @@ PlaylistsRouter.get("/:playlistID", JWTTokenAuth, async (req, res, next) => {
       next(
         createHttpError(
           404,
-          `Playlist with ID ${req.params.playlistID} not found!`
+          `Playlist with the ID ${req.params.playlistID} not found!`
         )
       );
   } catch (error) {
@@ -83,7 +84,7 @@ PlaylistsRouter.put("/:playlistID", JWTTokenAuth, async (req, res, next) => {
       next(
         createHttpError(
           404,
-          `Playlist with the id ${req.params.playlistID} not found!`
+          `Playlist with the ID ${req.params.playlistID} not found!`
         )
       );
   } catch (error) {
@@ -99,7 +100,7 @@ PlaylistsRouter.delete("/:playlistID", JWTTokenAuth, async (req, res, next) => {
       req.params.playlistID
     )) as IPlaylist;
     if (playlist) {
-      if (playlist.user.toString() === (req as IUserRequest).user!._id) {
+      if (playlist.user.toString() === userID) {
         await PlaylistsModel.findByIdAndDelete(req.params.playlistID);
         await UsersModel.findByIdAndUpdate(userID, {
           $pull: { playlists: playlist._id },
@@ -117,7 +118,7 @@ PlaylistsRouter.delete("/:playlistID", JWTTokenAuth, async (req, res, next) => {
       next(
         createHttpError(
           404,
-          `Playlist with the id ${req.params.playlistID} not found!`
+          `Playlist with the ID ${req.params.playlistID} not found!`
         )
       );
     }
@@ -176,7 +177,7 @@ PlaylistsRouter.post(
         next(
           createHttpError(
             404,
-            `Playlist with ID ${req.params.playlistID} not found!`
+            `Playlist with the ID ${req.params.playlistID} not found!`
           )
         );
       }
@@ -224,9 +225,53 @@ PlaylistsRouter.delete(
         next(
           createHttpError(
             404,
-            `Playlist with ID ${req.params.playlistID} not found!`
+            `Playlist with the ID ${req.params.playlistID} not found!`
           )
         );
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// Upload a cover for a Playlist
+PlaylistsRouter.post(
+  "/:playlistID/cover",
+  JWTTokenAuth,
+  coverUploader,
+  async (req, res, next) => {
+    try {
+      if (req.file) {
+        const userID = (req as IUserRequest).user!._id;
+        const playlist = (await PlaylistsModel.findById(
+          req.params.playlistID
+        )) as IPlaylist;
+        if (playlist) {
+          if (playlist.user.toString() === userID) {
+            const updatedPlaylist = await PlaylistsModel.findByIdAndUpdate(
+              req.params.playlistID,
+              { cover: req.file.path }
+            );
+            res.send({ coverURL: req.file.path });
+          } else {
+            next(
+              createHttpError(
+                401,
+                "This user does not have the permission to add a cover for this playlist!"
+              )
+            );
+          }
+        } else {
+          next(
+            createHttpError(
+              404,
+              `Playlist with the ID ${req.params.playlistID} not found!`
+            )
+          );
+        }
+      } else {
+        next(createHttpError(400, "Please provide an image file!"));
       }
     } catch (error) {
       next(error);
