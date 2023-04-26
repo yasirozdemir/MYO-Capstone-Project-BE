@@ -6,7 +6,6 @@ import UsersRouter from "../users";
 import createHttpError from "http-errors";
 import { IPlaylist } from "../../interfaces/IPlaylist";
 import { IUser } from "../../interfaces/IUser";
-import mongoose from "mongoose";
 
 const PlaylistsRouter = express.Router();
 
@@ -26,12 +25,16 @@ PlaylistsRouter.get("/", JWTTokenAuth, async (req, res, next) => {
 // Create a playlist
 PlaylistsRouter.post("/me", JWTTokenAuth, async (req, res, next) => {
   try {
+    const userID = (req as IUserRequest).user!._id;
     const newPlaylist = new PlaylistsModel({
       ...req.body,
-      user: (req as IUserRequest).user!._id,
+      user: userID,
     });
     const { _id } = await newPlaylist.save();
-    res.status(201).send({ _id });
+    await UsersModel.findByIdAndUpdate(userID, {
+      $push: { playlists: _id },
+    });
+    res.status(201).send({ playlistID: _id });
   } catch (error) {
     next(error);
   }
@@ -91,12 +94,16 @@ PlaylistsRouter.put("/:playlistID", JWTTokenAuth, async (req, res, next) => {
 // Delete a Playlist
 PlaylistsRouter.delete("/:playlistID", JWTTokenAuth, async (req, res, next) => {
   try {
+    const userID = (req as IUserRequest).user!._id;
     const playlist = (await PlaylistsModel.findById(
       req.params.playlistID
     )) as IPlaylist;
     if (playlist) {
       if (playlist.user.toString() === (req as IUserRequest).user!._id) {
         await PlaylistsModel.findByIdAndDelete(req.params.playlistID);
+        await UsersModel.findByIdAndUpdate(userID, {
+          $pull: { playlists: playlist._id },
+        });
         res.status(204).send();
       } else {
         next(
