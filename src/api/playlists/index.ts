@@ -23,7 +23,7 @@ PlaylistsRouter.get("/", JWTTokenAuth, async (req, res, next) => {
 });
 
 // Create a playlist
-PlaylistsRouter.post("/me", JWTTokenAuth, async (req, res, next) => {
+PlaylistsRouter.post("/", JWTTokenAuth, async (req, res, next) => {
   try {
     const userID = (req as IUserRequest).user!._id;
     const newPlaylist = new PlaylistsModel({
