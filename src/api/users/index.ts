@@ -130,7 +130,7 @@ UsersRouter.get("/:userID", JWTTokenAuth, async (req, res, next) => {
   }
 });
 
-// Upload a avatar
+// Upload avatar
 UsersRouter.post(
   "/me/avatar",
   JWTTokenAuth,
