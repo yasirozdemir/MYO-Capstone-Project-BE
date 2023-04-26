@@ -161,9 +161,57 @@ PlaylistsRouter.post(
           await UsersModel.findByIdAndUpdate(userID, {
             $push: { likedPlaylists: playlist._id },
           });
-          res.send();
+          res.send({ message: "Liked!" });
         } else {
           next(createHttpError(400, "You've already liked this playlist!"));
+        }
+      } else {
+        next(
+          createHttpError(
+            404,
+            `Playlist with ID ${req.params.playlistID} not found!`
+          )
+        );
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// Dislike a Playlist
+PlaylistsRouter.delete(
+  "/:playlistID/likes",
+  JWTTokenAuth,
+  async (req, res, next) => {
+    try {
+      const userID = (req as IUserRequest).user!._id;
+      const playlist = (await PlaylistsModel.findById(
+        req.params.playlistID
+      )) as IPlaylist;
+      const user = (await UsersModel.findById(userID)) as IUser;
+      if (playlist) {
+        // isLike = true -> dislike
+        // isLike = false -> throw error
+        const isLiked =
+          playlist.likes.some((id) => id.toString() === userID) &&
+          user.likedPlaylists.some(
+            (playlistID) => playlistID.toString() === req.params.playlistID
+          );
+        if (isLiked) {
+          await PlaylistsModel.findByIdAndUpdate(
+            req.params.playlistID,
+            {
+              $pull: { likes: userID },
+            },
+            { new: true, runValidators: true }
+          );
+          await UsersModel.findByIdAndUpdate(userID, {
+            $pull: { likedPlaylists: playlist._id },
+          });
+          res.send({ message: "Disliked!" });
+        } else {
+          next(createHttpError(400, "You've already disliked this playlist!"));
         }
       } else {
         next(
