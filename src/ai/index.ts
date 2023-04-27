@@ -16,10 +16,9 @@ or if the prompt is meaningless return "INVALID_PROMPT"`;
 
 const AiRouter = express.Router();
 
-let moviesList: IImdbMovieMeta[] = [];
-
 AiRouter.post("/prompt-to-movies", async (req, res, next) => {
   try {
+    let moviesList: IImdbMovieMeta[] = [];
     const prompt = req.body.prompt;
     const completion = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
