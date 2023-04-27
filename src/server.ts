@@ -11,6 +11,7 @@ import {
 import UsersRouter from "./api/users";
 import PlaylistsRouter from "./api/playlists";
 import SongsRouter from "./api/songs";
+import AiRouter from "./ai";
 // import passport from "passport";
 // import googleStrategy from "./lib/auth/googleOauth";
 
@@ -40,6 +41,7 @@ expressServer.use(express.json());
 expressServer.use("/users", UsersRouter);
 expressServer.use("/playlists", PlaylistsRouter);
 expressServer.use("/playlists", SongsRouter);
+expressServer.use("/ai", AiRouter);
 
 expressServer.use(badRequestHandler);
 expressServer.use(unauthorizedHandler);
