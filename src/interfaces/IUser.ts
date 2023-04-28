@@ -8,6 +8,8 @@ export interface IUser {
   verified: boolean;
   watchlists: string[];
   likedWatchlists: string[];
+  followers: string[];
+  following: string[];
   refreshToken: string;
 }
 

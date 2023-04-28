@@ -17,6 +17,8 @@ const UsersSchema = new Schema({
   verified: { type: Boolean, default: false },
   watchlists: { type: Array, default: [] }, // will hold object ids
   likedWatchlists: { type: Array, default: [] }, // will hold object ids
+  followers: { type: Array, default: [] }, // will hold object ids
+  following: { type: Array, default: [] }, // will hold object ids
   refreshToken: { type: String },
   googleID: { type: String },
 });
