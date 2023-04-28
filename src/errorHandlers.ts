@@ -44,9 +44,21 @@ export const genericErrorHandler: ErrorRequestHandler = (
   res,
   next
 ) => {
-  console.log(err);
   res.status(500).send({
     message: "Server error, please contact with the developer team!",
+    contact: "muhammedyasirozdemircareer@gmail.com",
+    failed: true,
+  });
+};
+
+export const serviceUnavailable: ErrorRequestHandler = (
+  err,
+  req,
+  res,
+  next
+) => {
+  res.status(503).send({
+    message: "Unavailable service: API related error!",
     contact: "muhammedyasirozdemircareer@gmail.com",
     failed: true,
   });

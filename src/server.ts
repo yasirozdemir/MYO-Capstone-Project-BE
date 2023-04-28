@@ -6,6 +6,7 @@ import {
   forbiddenHandler,
   genericErrorHandler,
   notFoundHandler,
+  serviceUnavailable,
   unauthorizedHandler,
 } from "./errorHandlers";
 import UsersRouter from "./api/users";
@@ -48,5 +49,6 @@ expressServer.use(unauthorizedHandler);
 expressServer.use(forbiddenHandler);
 expressServer.use(notFoundHandler);
 expressServer.use(genericErrorHandler);
+expressServer.use(serviceUnavailable);
 
 export { expressServer };

@@ -1,8 +1,12 @@
 import express from "express";
 import createHttpError from "http-errors";
 import { Configuration, OpenAIApi } from "openai";
-import { IImdbMovieInfo, IImdbMovieMeta } from "../interfaces/IMovie";
-const nameToImdb = require("name-to-imdb");
+import MoviesModel from "../api/movies/model";
+import { IMovie } from "../interfaces/IMovie";
+
+function csvToArray(csv: string) {
+  return csv.split(", ").map((el) => el.trim());
+}
 
 const aiConfig = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
@@ -18,7 +22,7 @@ const AiRouter = express.Router();
 
 AiRouter.post("/prompt-to-movies", async (req, res, next) => {
   try {
-    let moviesList: IImdbMovieMeta[] = [];
+    let moviesList: IMovie[] = [];
     const prompt = req.body.prompt;
     const completion = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
@@ -39,19 +43,14 @@ AiRouter.post("/prompt-to-movies", async (req, res, next) => {
       const end = message.indexOf("]");
       const arrayString = message.substring(start, end + 1);
       console.log(arrayString);
-      const setMoviePromises = JSON.parse(arrayString).map((movie: string) => {
+      const setMoviePromises = JSON.parse(arrayString).map((title: string) => {
         return new Promise<void>((resolve, reject) => {
-          nameToImdb(
-            { name: movie },
-            (err: Error, _: string, info: IImdbMovieInfo) => {
-              if (!err) {
-                moviesList.push(info.meta);
-                resolve();
-              } else {
-                reject(err);
-              }
-            }
-          );
+          movieDealer(title)
+            .then((movie) => {
+              moviesList.push(movie);
+              resolve();
+            })
+            .catch((err) => reject(err));
         });
       });
       await Promise.all(setMoviePromises);
@@ -64,5 +63,52 @@ AiRouter.post("/prompt-to-movies", async (req, res, next) => {
     next(error);
   }
 });
+
+const movieDealer = async (title: string) => {
+  const res = await fetch(
+    `http://www.omdbapi.com/?t=${title}&type=movie&apikey=${process.env.OMDB_API_KEY}`
+  );
+  if (res.ok) {
+    const {
+      Title,
+      Released,
+      Rated,
+      Runtime,
+      Genre,
+      Poster,
+      imdbRating,
+      imdbID,
+      Plot,
+      Director,
+      Writer,
+      Actors,
+    } = await res.json();
+    const isExisted = await MoviesModel.findOne({ imdbID });
+    if (!isExisted) {
+      const movieInf = {
+        title: Title,
+        released: Released,
+        rated: Rated,
+        duration: Runtime,
+        genres: csvToArray(Genre),
+        poster: Poster,
+        imdbRating,
+        imdbID,
+        description: Plot,
+        director: csvToArray(Director),
+        writer: csvToArray(Writer),
+        actors: csvToArray(Actors),
+      };
+      const movie = new MoviesModel(movieInf);
+      await movie.save();
+      return movie;
+    } else {
+      const movie = isExisted;
+      return movie;
+    }
+  } else {
+    throw new createHttpError[503]();
+  }
+};
 
 export default AiRouter;
