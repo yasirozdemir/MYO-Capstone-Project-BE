@@ -51,7 +51,7 @@ UsersRouter.post("/session", async (req, res, next) => {
 });
 
 // Login with Google
-UsersRouter.post(
+UsersRouter.get(
   "/googleLogin",
   passport.authenticate("google", {
     session: false,
@@ -60,7 +60,7 @@ UsersRouter.post(
   async (req, res, next) => {
     try {
       res.redirect(
-        `${process.env.FE_DEV_URL}/?accessToken=${
+        `${process.env.FE_DEV_URL}/googleRedirect?accessToken=${
           (req.user as IGoogleLoginReq).accessToken
         }`
       );

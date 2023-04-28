@@ -11,11 +11,11 @@ import {
 } from "./errorHandlers";
 import UsersRouter from "./api/users";
 import AiRouter from "./ai";
-// import passport from "passport";
-// import googleStrategy from "./lib/auth/googleOauth";
+import passport from "passport";
+import googleStrategy from "./lib/auth/googleOAuth";
 
 const expressServer = express();
-// passport.use("google", googleStrategy);
+passport.use("google", googleStrategy);
 
 const whiteList = [process.env.FE_DEV_URL, process.env.FE_PROD_URL];
 const corsOptions: CorsOptions = {
