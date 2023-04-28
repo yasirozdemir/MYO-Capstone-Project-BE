@@ -7,7 +7,7 @@
   <a href="https://github.com/yasirozdemir" target="_blank">Author</a>
 </p>
 
-![db_structure](https://res.cloudinary.com/yasirdev/image/upload/v1682497384/capstone/dev/DB_Structure_ujosuj.png)
+![db_structure](https://res.cloudinary.com/yasirdev/image/upload/v1682669539/capstone/dev/DB_Structure_hmtxml.png)
 
 ## :dart: Project Summary
 
