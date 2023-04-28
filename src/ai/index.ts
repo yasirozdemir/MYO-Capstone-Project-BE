@@ -9,7 +9,7 @@ const aiConfig = new Configuration({
 });
 const openai = new OpenAIApi(aiConfig);
 const systemPrompt = `Give the user some random movie suggestions from IMDB depending on their mood, feeling, thought or desire as an array of objects with length of 5. Movies should vary each time the user gives a new prompt.
-The structure of the response should be like the following: [{name:""},{name:""},{name:""},{name:""},{name:""}] as JSON.
+The structure of the response should be like the following: ["name1","name2","name3","name4","name5"].
 Do not include any further info or message but the array. 
 If you cannot find any return "ERROR",
 or if the prompt is meaningless return "INVALID_PROMPT"`;
@@ -38,23 +38,22 @@ AiRouter.post("/prompt-to-movies", async (req, res, next) => {
       const start = message.indexOf("[");
       const end = message.indexOf("]");
       const arrayString = message.substring(start, end + 1);
-      const setMoviePromises = JSON.parse(arrayString).map(
-        (movie: { name: string }) => {
-          return new Promise<void>((resolve, reject) => {
-            nameToImdb(
-              { name: movie.name },
-              (err: Error, _: string, info: IImdbMovieInfo) => {
-                if (!err) {
-                  moviesList.push(info.meta);
-                  resolve();
-                } else {
-                  reject(err);
-                }
+      console.log(arrayString);
+      const setMoviePromises = JSON.parse(arrayString).map((movie: string) => {
+        return new Promise<void>((resolve, reject) => {
+          nameToImdb(
+            { name: movie },
+            (err: Error, _: string, info: IImdbMovieInfo) => {
+              if (!err) {
+                moviesList.push(info.meta);
+                resolve();
+              } else {
+                reject(err);
               }
-            );
-          });
-        }
-      );
+            }
+          );
+        });
+      });
       await Promise.all(setMoviePromises);
       res.send({ moviesList });
       moviesList = [];
