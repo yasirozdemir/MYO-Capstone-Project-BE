@@ -22,7 +22,8 @@ const googleStrategy = new GoogleStrategy(
         passportNext(null, { accessToken });
       } else {
         const newUser = new UsersModel({
-          fullName: `${given_name} ${family_name}`,
+          name: given_name,
+          surname: family_name,
           email,
           avatar: picture,
           googleID: sub,
