@@ -86,8 +86,6 @@ const movieDealer = async (title: string) => {
     } = res.data;
     const isExisted = await MoviesModel.findOne({ imdbID });
     if (!isExisted) {
-      const genres = csvToArray(Genre);
-
       const movieInf = {
         title: Title,
         released: Released,
