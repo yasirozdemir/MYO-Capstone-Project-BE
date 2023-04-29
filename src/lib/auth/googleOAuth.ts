@@ -2,13 +2,13 @@ import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import UsersModel from "../../api/users/model";
 import { createAccessToken } from "./tools";
 
-const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, API_URL } = process.env;
+const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, API_DEV_URL } = process.env;
 
 const googleStrategy = new GoogleStrategy(
   {
     clientID: GOOGLE_CLIENT_ID!,
     clientSecret: GOOGLE_CLIENT_SECRET!,
-    callbackURL: `${API_URL}/users/googleLogin`,
+    callbackURL: `${API_DEV_URL}/users/googleLogin`,
   },
   async (_, __, profile, passportNext) => {
     try {
