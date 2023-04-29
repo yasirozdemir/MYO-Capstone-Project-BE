@@ -4,6 +4,10 @@ import { ErrorRequestHandler } from "express";
 export const badRequestHandler: ErrorRequestHandler = (err, req, res, next) => {
   if (err.status === 400 || err instanceof mongoose.Error.ValidationError) {
     res.status(400).send({ message: err.message, failed: true });
+  } else if (err instanceof mongoose.Error.CastError) {
+    res
+      .status(400)
+      .send({ message: "Invalid ObjectId in the URL!", failed: true });
   } else {
     next(err);
   }
