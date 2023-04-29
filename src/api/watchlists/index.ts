@@ -39,6 +39,31 @@ WLRouter.post("/", JWTTokenAuth, async (req, res, next) => {
   }
 });
 
+// Get a Watchlist with it's ID
+WLRouter.get("/:WLID", JWTTokenAuth, async (req, res, next) => {
+  try {
+    const WL = await WLsModel.findById(req.params.WLID);
+    if (WL) res.send(WL);
+    else
+      next(
+        createHttpError(404, `Watchlist with ID ${req.params.WLID} not found!`)
+      );
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Get all the Watchlists that the User is a member of
+UsersRouter.get("/:userID/watchlists", JWTTokenAuth, async (req, res, next) => {
+  try {
+    const userID = req.params.userID;
+    const WLs = await WLsModel.find({ members: { $in: [userID] } });
+    res.send(WLs);
+  } catch (error) {
+    next(error);
+  }
+});
+
 // // Edit a Watchlist
 // WLRouter.put("/", JWTTokenAuth, async (req, res, next) => {
 //   try {
