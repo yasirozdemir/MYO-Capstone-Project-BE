@@ -1,12 +1,11 @@
-import express, { NextFunction } from "express";
+import express, { NextFunction, RequestHandler } from "express";
 import createHttpError from "http-errors";
 import { IUserRequest, JWTTokenAuth } from "../../lib/auth/jwt";
 import WatchlistsModel from "./model";
 const WLsModel = WatchlistsModel;
 import UsersModel from "../users/model";
 import UsersRouter from "../users";
-import { IWatchlist } from "../../interfaces/IWatchlist";
-import { IUser } from "../../interfaces/IUser";
+import { checkMember } from "../../lib/middlewares";
 const q2m = require("query-to-mongo");
 
 // I'll call Watchlist WL
@@ -46,7 +45,10 @@ WLRouter.get("/:WLID", JWTTokenAuth, async (req, res, next) => {
     if (WL) res.send(WL);
     else
       next(
-        createHttpError(404, `Watchlist with ID ${req.params.WLID} not found!`)
+        createHttpError(
+          404,
+          `Watchlist with the ID ${req.params.WLID} not found!`
+        )
       );
   } catch (error) {
     next(error);
@@ -64,12 +66,18 @@ UsersRouter.get("/:userID/watchlists", JWTTokenAuth, async (req, res, next) => {
   }
 });
 
-// // Edit a Watchlist
-// WLRouter.put("/", JWTTokenAuth, async (req, res, next) => {
-//   try {
-//   } catch (error) {
-//     next(error);
-//   }
-// });
+// Edit a Watchlist
+WLRouter.put("/:WLID", JWTTokenAuth, checkMember, async (req, res, next) => {
+  try {
+    const editedWL = await WLsModel.findByIdAndUpdate(
+      req.params.WLID,
+      req.body,
+      { new: true, runValidators: true }
+    );
+    res.send(editedWL);
+  } catch (error) {
+    next(error);
+  }
+});
 
 export default WLRouter;
