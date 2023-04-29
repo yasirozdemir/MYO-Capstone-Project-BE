@@ -1,11 +1,11 @@
-import express, { NextFunction, RequestHandler } from "express";
-import createHttpError from "http-errors";
+import express from "express";
 import { IUserRequest, JWTTokenAuth } from "../../lib/auth/jwt";
 import WatchlistsModel from "./model";
 const WLsModel = WatchlistsModel;
 import UsersModel from "../users/model";
 import UsersRouter from "../users";
 import { checkMember } from "../../lib/middlewares";
+import { trigger404 } from "../../errorHandlers";
 const q2m = require("query-to-mongo");
 
 // I'll call Watchlist WL
@@ -43,13 +43,7 @@ WLRouter.get("/:WLID", JWTTokenAuth, async (req, res, next) => {
   try {
     const WL = await WLsModel.findById(req.params.WLID);
     if (WL) res.send(WL);
-    else
-      next(
-        createHttpError(
-          404,
-          `Watchlist with the ID ${req.params.WLID} not found!`
-        )
-      );
+    else next(trigger404("watchlist", req.params.WLID));
   } catch (error) {
     next(error);
   }
@@ -75,6 +69,17 @@ WLRouter.put("/:WLID", JWTTokenAuth, checkMember, async (req, res, next) => {
       { new: true, runValidators: true }
     );
     res.send(editedWL);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Delete a Watchlist
+WLRouter.delete("/:WLID", JWTTokenAuth, checkMember, async (req, res, next) => {
+  try {
+    const deletedWL = await WLsModel.findByIdAndDelete(req.params.WLID);
+    if (deletedWL) res.status(204).send();
+    else trigger404("Watchlist", req.params.WLID);
   } catch (error) {
     next(error);
   }
