@@ -7,6 +7,7 @@ import UsersModel from "../users/model";
 import UsersRouter from "../users";
 import { IWatchlist } from "../../interfaces/IWatchlist";
 import { IUser } from "../../interfaces/IUser";
+const q2m = require("query-to-mongo");
 
 // I'll call Watchlist WL
 const WLRouter = express.Router();
@@ -14,7 +15,8 @@ const WLRouter = express.Router();
 // Get all the Watchlists in the DB
 WLRouter.get("/", JWTTokenAuth, async (req, res, next) => {
   try {
-    const WLs = await WLsModel.find().populate(
+    const query = q2m(req.query);
+    const WLs = await WLsModel.find(query.criteria).populate(
       "members",
       "_id name surname avatar"
     );
