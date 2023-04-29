@@ -8,12 +8,7 @@ export interface IUserRequest extends Request {
 
 export const JWTTokenAuth: RequestHandler = async (req, res, next) => {
   if (!req.headers.authorization) {
-    next(
-      createHttpError(401, {
-        message: "Please provide a Bearer token in authorization header!",
-        error: "no token",
-      })
-    );
+    next(createHttpError(401, "No token!"));
   } else {
     const accessToken = req.headers.authorization.replace("Bearer ", "");
     try {
@@ -21,12 +16,7 @@ export const JWTTokenAuth: RequestHandler = async (req, res, next) => {
       req.user = { _id: payload._id, email: payload.email };
       next();
     } catch (error) {
-      next(
-        createHttpError(401, {
-          message: "Please provide a Bearer token in authorization header!",
-          error: "expired",
-        })
-      );
+      next(createHttpError(401, "Expired token!"));
     }
   }
 };
