@@ -12,13 +12,13 @@ const UsersSchema = new Schema({
     type: String,
     required: true,
     default:
-      "https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png",
+      "https://res.cloudinary.com/yasirdev/image/upload/v1682762639/capstone/dev/user_qga843.jpg",
   },
   verified: { type: Boolean, default: false },
-  watchlists: { type: Array, default: [] }, // will hold object ids
-  likedWatchlists: { type: Array, default: [] }, // will hold object ids
-  followers: { type: Array, default: [] }, // will hold object ids
-  following: { type: Array, default: [] }, // will hold object ids
+  watchlists: [{ type: mongoose.Types.ObjectId, ref: "watchlist" }],
+  likedWatchlists: [{ type: mongoose.Types.ObjectId, ref: "watchlist" }],
+  followers: [{ type: mongoose.Types.ObjectId, ref: "user" }],
+  following: [{ type: mongoose.Types.ObjectId, ref: "user" }],
   refreshToken: { type: String },
   googleID: { type: String },
 });

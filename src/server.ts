@@ -13,6 +13,7 @@ import UsersRouter from "./api/users";
 import AiRouter from "./ai";
 import passport from "passport";
 import googleStrategy from "./lib/auth/googleOAuth";
+import WatchlistsRouter from "./api/watchlists";
 
 const expressServer = express();
 passport.use("google", googleStrategy);
@@ -38,6 +39,7 @@ expressServer.use(express.json());
 
 expressServer.use("/users", UsersRouter);
 expressServer.use("/ai", AiRouter);
+expressServer.use("/watchlists", WatchlistsRouter);
 
 expressServer.use(badRequestHandler);
 expressServer.use(unauthorizedHandler);
