@@ -1,7 +1,6 @@
 import express from "express";
 import { IUserRequest, JWTTokenAuth } from "../../lib/auth/jwt";
-import WatchlistsModel from "./model";
-const WLsModel = WatchlistsModel;
+import WLsModel from "./model";
 import UsersModel from "../users/model";
 import UsersRouter from "../users";
 import { checkMember } from "../../lib/middlewares";
