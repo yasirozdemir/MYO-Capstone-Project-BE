@@ -14,6 +14,7 @@ import AiRouter from "./ai";
 import passport from "passport";
 import googleStrategy from "./lib/auth/googleOAuth";
 import WatchlistsRouter from "./api/watchlists";
+import MoviesRouter from "./api/movies";
 
 const expressServer = express();
 passport.use("google", googleStrategy);
@@ -38,6 +39,7 @@ expressServer.use(cors(corsOptions));
 expressServer.use(express.json());
 
 expressServer.use("/users", UsersRouter);
+expressServer.use("/movies", MoviesRouter);
 expressServer.use("/ai", AiRouter);
 expressServer.use("/watchlists", WatchlistsRouter);
 
