@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon -r dotenv/config ./src/index.ts",
-    "start": "node ./src/index.ts",
+    "start": "node ./build/index.js",
     "test": "jest --watchAll",
     "build": "tsc"
   },
