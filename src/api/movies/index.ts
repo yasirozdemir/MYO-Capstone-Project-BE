@@ -2,7 +2,6 @@ import express from "express";
 import MoviesModel from "./model";
 import { JWTTokenAuth } from "../../lib/auth/jwt";
 import WLRouter from "../watchlists";
-import WLsModel from "../watchlists/model";
 import {
   IMovieWLChecks,
   checkIsMemberOfWL,
