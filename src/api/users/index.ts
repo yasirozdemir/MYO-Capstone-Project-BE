@@ -7,6 +7,7 @@ import { createAccessToken, createRefreshToken } from "../../lib/auth/tools";
 import passport from "passport";
 import { IGoogleLoginReq } from "../../lib/auth/googleOAuth";
 import { trigger404 } from "../../errorHandlers";
+import { IFollowChecks, checkFollows } from "../../lib/middlewares";
 
 const UsersRouter = express.Router();
 
@@ -164,5 +165,59 @@ UsersRouter.delete("/me/avatar", JWTTokenAuth, async (req, res, next) => {
     next(error);
   }
 });
+
+// Follow
+UsersRouter.post(
+  "/follow/:userID",
+  JWTTokenAuth,
+  checkFollows,
+  async (req, res, next) => {
+    // (req as IFollowChecks).user1 will follow (req as IFollowChecks).user2
+    try {
+      const user1 = (req as IFollowChecks).user1;
+      const user2 = (req as IFollowChecks).user2;
+      if (!(req as IFollowChecks).ImFollowingThem) {
+        user1.following = [...user1.following, user2._id];
+        await user1.save();
+        user2.followers = [...user2.followers, user1._id];
+        await user2.save();
+        res.send({ message: "Followed!" });
+      } else {
+        next(createHttpError(400, "You're already following this user!"));
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// Unfollow
+UsersRouter.delete(
+  "/follow/:userID",
+  JWTTokenAuth,
+  checkFollows,
+  async (req, res, next) => {
+    // (req as IFollowChecks).user1 will unfollow (req as IFollowChecks).user2
+    try {
+      const user1 = (req as IFollowChecks).user1;
+      const user2 = (req as IFollowChecks).user2;
+      if ((req as IFollowChecks).ImFollowingThem) {
+        user1.following = user1.following.filter(
+          (id) => id.toString() !== user2._id.toString()
+        );
+        await user1.save();
+        user2.followers = user2.followers.filter(
+          (id) => id.toString() !== user1._id.toString()
+        );
+        await user2.save();
+        res.send({ message: "Unfollowed!" });
+      } else {
+        next(createHttpError(400, "You've already unfollowed this user!"));
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 export default UsersRouter;
