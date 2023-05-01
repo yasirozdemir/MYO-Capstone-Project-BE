@@ -2,6 +2,7 @@ import createHttpError from "http-errors";
 import jwt from "jsonwebtoken";
 import UsersModel from "../../api/users/model";
 import { IUserDocument } from "../../interfaces/IUser";
+require("dotenv").config();
 export interface TokenPayload {
   _id: string;
   email: string;
