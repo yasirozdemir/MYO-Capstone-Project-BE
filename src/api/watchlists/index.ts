@@ -120,4 +120,29 @@ WLRouter.post(
   }
 );
 
+// Dislike a Watchlist
+WLRouter.delete(
+  "/:WLID/likes",
+  JWTTokenAuth,
+  checkIsLiked,
+  async (req, res, next) => {
+    try {
+      if ((req as IUserRequest).isLiked) {
+        const userID = (req as IUserRequest).user!._id;
+        await WLsModel.findByIdAndUpdate(req.params.WLID, {
+          $pull: { likes: userID },
+        });
+        await UsersModel.findByIdAndUpdate(userID, {
+          $pull: { likedWatchlists: req.params.WLID },
+        });
+        res.send({ message: "Disliked!" });
+      } else {
+        next(createHttpError(400, "You've already disliked this watchlist!"));
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 export default WLRouter;
