@@ -4,6 +4,7 @@ import { verifyAccessToken, TokenPayload } from "./tools";
 
 export interface IUserRequest extends Request {
   user?: TokenPayload;
+  isLiked?: boolean;
 }
 
 export const JWTTokenAuth: RequestHandler = async (req, res, next) => {
