@@ -28,11 +28,7 @@ export const checkIsLiked: RequestHandler = async (req, res, next) => {
     const isLiked =
       WL.likes.some((id) => id.toString() === userID) &&
       user.likedWatchlists.some((id) => id.toString() === req.params.WLID);
-    if (isLiked) {
-      (req as IUserRequest).isLiked = true;
-    } else {
-      (req as IUserRequest).isLiked = false;
-    }
+    (req as IUserRequest).isLiked = isLiked;
     next();
   } else {
     next(trigger404("Watchlist", req.params.WLID));
