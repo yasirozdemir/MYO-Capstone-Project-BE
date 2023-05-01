@@ -15,7 +15,7 @@ export const coverUploader = multer({
   storage: new CloudinaryStorage({
     cloudinary,
     params: {
-      folder: "WhataMovie/users/avatars",
+      folder: "WhataMovie/watchlists/covers",
     } as { folder: string },
   }),
 }).single("cover");
