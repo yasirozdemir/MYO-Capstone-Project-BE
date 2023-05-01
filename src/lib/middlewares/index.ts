@@ -27,7 +27,7 @@ export const checkIsLiked: RequestHandler = async (req, res, next) => {
     const user = (await UsersModel.findById(userID)) as IUser;
     const isLiked =
       WL.likes.some((id) => id.toString() === userID) &&
-      user.likedWatchlists.some((id) => id === WL._id.toString());
+      user.likedWatchlists.some((id) => id.toString() === req.params.WLID);
     if (isLiked) {
       (req as IUserRequest).isLiked = true;
     } else {
