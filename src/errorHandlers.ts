@@ -53,6 +53,7 @@ export const genericErrorHandler: ErrorRequestHandler = (
   res,
   next
 ) => {
+  console.log(err);
   res.status(500).send({
     message: "Server error, please contact with the developer team!",
     contact: "muhammedyasirozdemircareer@gmail.com",
