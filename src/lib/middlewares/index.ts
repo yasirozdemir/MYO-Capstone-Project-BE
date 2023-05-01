@@ -3,7 +3,10 @@ import { IUserRequest } from "../auth/jwt";
 import createHttpError from "http-errors";
 import WLsModel from "../../api/watchlists/model";
 import UsersModel from "../../api/users/model";
+import MoviesModel from "../../api/movies/model";
 import { IUser, IUserDocument } from "../../interfaces/IUser";
+import { IMovieDocument } from "../../interfaces/IMovie";
+import { IWatchlistDocument } from "../../interfaces/IWatchlist";
 
 export const checkIsMemberOfWL: RequestHandler = async (req, res, next) => {
   const userID = (req as IUserRequest).user!._id;
@@ -71,5 +74,30 @@ export const checkFollows: RequestHandler = async (req, res, next) => {
         user2.following.includes(u1ID);
       next();
     }
+  }
+};
+
+export interface IMovieWLChecks extends Request {
+  movie: IMovieDocument;
+  WL: IWatchlistDocument;
+  movieIsAlreadyIn: boolean;
+}
+
+export const checkMovieInWL: RequestHandler = async (req, res, next) => {
+  const WLID = req.params.WLID;
+  const movieID = req.params.movieID;
+  const WL = await WLsModel.findById(WLID);
+  if (WL) {
+    (req as IMovieWLChecks).WL = WL;
+    const movie = await MoviesModel.findById(movieID);
+    if (movie) {
+      (req as IMovieWLChecks).movie = movie;
+      (req as IMovieWLChecks).movieIsAlreadyIn = WL.movies.includes(movieID);
+      next();
+    } else {
+      next(createHttpError(404, `Movie with the ID ${movieID} not found!`));
+    }
+  } else {
+    next(createHttpError(404, `Watchlist with the ID ${WLID} not found!`));
   }
 };
