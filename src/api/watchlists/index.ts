@@ -6,6 +6,7 @@ import UsersRouter from "../users";
 import { checkIsLiked, checkIsMemberOfWL } from "../../lib/middlewares";
 import { trigger404 } from "../../errorHandlers";
 import createHttpError from "http-errors";
+import { coverUploader } from "../../lib/cloudinary";
 const q2m = require("query-to-mongo");
 
 // I'll call Watchlist WL
@@ -138,6 +139,54 @@ WLRouter.delete(
         res.send({ message: "Disliked!" });
       } else {
         next(createHttpError(400, "You've already disliked this watchlist!"));
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// Upload a cover for a Watchlist
+WLRouter.post(
+  "/:WLID/cover",
+  JWTTokenAuth,
+  checkIsMemberOfWL,
+  coverUploader,
+  async (req, res, next) => {
+    try {
+      if (req.file) {
+        const WL = await WLsModel.findById(req.params.WLID);
+        if (WL) {
+          WL.cover = req.file.path;
+          await WL.save();
+          res.send({ cover: req.file.path });
+        } else {
+          trigger404("Watchlist", req.params.WLID);
+        }
+      } else {
+        next(createHttpError(400, "Please provide an image file!"));
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// Remove the cover of a Watchlist
+WLRouter.delete(
+  "/:WLID/cover",
+  JWTTokenAuth,
+  checkIsMemberOfWL,
+  async (req, res, next) => {
+    try {
+      const WL = await WLsModel.findById(req.params.WLID);
+      if (WL) {
+        WL.cover =
+          "https://res.cloudinary.com/yasirdev/image/upload/v1682762502/WhataMovie/watchlists/covers/watchlist_default.png";
+        await WL.save();
+        res.status(204).send();
+      } else {
+        trigger404("Watchlist", req.params.WLID);
       }
     } catch (error) {
       next(error);
