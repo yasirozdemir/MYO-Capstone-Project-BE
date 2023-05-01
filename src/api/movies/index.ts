@@ -53,28 +53,4 @@ WLRouter.post(
   }
 );
 
-// Remove a movie from a Watchlist
-WLRouter.delete(
-  "/:WLID/movies/:movieID",
-  JWTTokenAuth,
-  checkIsMemberOfWL,
-  checkMovieInWL,
-  async (req, res, next) => {
-    try {
-      if ((req as IMovieWLChecks).movieIsAlreadyIn) {
-        const WL = (req as IMovieWLChecks).WL;
-        WL.movies = WL.movies.filter(
-          (id) => id.toString() !== req.params.movieID
-        );
-        await WL.save();
-        res.send({ movies: WL.movies });
-      } else {
-        next(createHttpError(400, "This movie is not into this watchlist!"));
-      }
-    } catch (error) {
-      next(error);
-    }
-  }
-);
-
 export default MoviesRouter;
