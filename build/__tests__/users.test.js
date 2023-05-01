@@ -20,9 +20,11 @@ const model_1 = __importDefault(require("../api/users/model"));
 dotenv_1.default.config();
 const client = (0, supertest_1.default)(server_1.expressServer);
 let validID;
+let accessToken;
 const validUser = {
-    fullName: "Test",
-    email: "valid@user.com",
+    name: "Test",
+    surname: "Test",
+    email: "test@test.com",
     password: "123456",
     playlists: [],
 };
@@ -40,8 +42,18 @@ afterAll(() => __awaiter(void 0, void 0, void 0, function* () {
     yield mongoose_1.default.connection.close();
 }));
 describe("Test Users API", () => {
+    test("login with valid credentials", () => __awaiter(void 0, void 0, void 0, function* () {
+        const res = yield client
+            .post("/users/session")
+            .send({ email: validUser.email, password: validUser.password });
+        const data = res.body;
+        accessToken = data.accessToken;
+    }));
     test("get on users works fine", () => __awaiter(void 0, void 0, void 0, function* () {
-        const res = yield client.get("/users").expect(200);
+        const res = yield client
+            .get("/users")
+            .set("Authorization", `Bearer ${accessToken}`)
+            .expect(200);
         expect(res.body).toBeDefined();
     }));
 });

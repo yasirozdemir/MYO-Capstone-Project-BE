@@ -7,11 +7,13 @@ import UsersModel from "../api/users/model";
 dotenv.config();
 const client = supertest(expressServer);
 
-let validID;
+let validID: string;
+let accessToken: string;
 
 const validUser = {
-  fullName: "Test",
-  email: "valid@user.com",
+  name: "Test",
+  surname: "Test",
+  email: "test@test.com",
   password: "123456",
   playlists: [],
 };
@@ -33,8 +35,18 @@ afterAll(async () => {
 });
 
 describe("Test Users API", () => {
+  test("login with valid credentials", async () => {
+    const res = await client
+      .post("/users/session")
+      .send({ email: validUser.email, password: validUser.password });
+    const data = res.body;
+    accessToken = data.accessToken;
+  });
   test("get on users works fine", async () => {
-    const res = await client.get("/users").expect(200);
+    const res = await client
+      .get("/users")
+      .set("Authorization", `Bearer ${accessToken}`)
+      .expect(200);
     expect(res.body).toBeDefined();
   });
 });
