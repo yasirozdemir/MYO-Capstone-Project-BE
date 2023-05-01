@@ -1,6 +1,14 @@
 import express from "express";
 import MoviesModel from "./model";
 import { JWTTokenAuth } from "../../lib/auth/jwt";
+import WLRouter from "../watchlists";
+import WLsModel from "../watchlists/model";
+import {
+  IMovieWLChecks,
+  checkIsMemberOfWL,
+  checkMovieInWL,
+} from "../../lib/middlewares";
+import createHttpError from "http-errors";
 const q2m = require("query-to-mongo");
 
 const MoviesRouter = express.Router();
@@ -21,5 +29,53 @@ MoviesRouter.get("/", JWTTokenAuth, async (req, res, next) => {
     next(error);
   }
 });
+
+// Add a movie into a Watchlist
+WLRouter.post(
+  "/:WLID/movies/:movieID",
+  JWTTokenAuth,
+  checkIsMemberOfWL,
+  checkMovieInWL,
+  async (req, res, next) => {
+    try {
+      if (!(req as IMovieWLChecks).movieIsAlreadyIn) {
+        const WL = (req as IMovieWLChecks).WL;
+        WL.movies = [...WL.movies, req.params.movieID];
+        await WL.save();
+        res.send({ movies: WL.movies });
+      } else {
+        next(
+          createHttpError(400, "This movie is already added to this watchlist!")
+        );
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// Remove a movie from a Watchlist
+WLRouter.delete(
+  "/:WLID/movies/:movieID",
+  JWTTokenAuth,
+  checkIsMemberOfWL,
+  checkMovieInWL,
+  async (req, res, next) => {
+    try {
+      if ((req as IMovieWLChecks).movieIsAlreadyIn) {
+        const WL = (req as IMovieWLChecks).WL;
+        WL.movies = WL.movies.filter(
+          (id) => id.toString() !== req.params.movieID
+        );
+        await WL.save();
+        res.send({ movies: WL.movies });
+      } else {
+        next(createHttpError(400, "This movie is not into this watchlist!"));
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 export default MoviesRouter;
