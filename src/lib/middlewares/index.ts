@@ -1,10 +1,10 @@
-import { RequestHandler } from "express";
+import { RequestHandler, Request } from "express";
 import { IUserRequest } from "../auth/jwt";
 import createHttpError from "http-errors";
 import WLsModel from "../../api/watchlists/model";
 import { trigger404 } from "../../errorHandlers";
 import UsersModel from "../../api/users/model";
-import { IUser } from "../../interfaces/IUser";
+import { IUser, IUserDocument } from "../../interfaces/IUser";
 
 export const checkIsMemberOfWL: RequestHandler = async (req, res, next) => {
   const userID = (req as IUserRequest).user!._id;
@@ -32,5 +32,34 @@ export const checkIsLiked: RequestHandler = async (req, res, next) => {
     next();
   } else {
     next(trigger404("Watchlist", req.params.WLID));
+  }
+};
+
+export interface IFollowChecks extends Request {
+  user1: IUserDocument;
+  user2: IUserDocument;
+  ImFollowingThem: boolean;
+  TheyAreFollowingMe: boolean;
+}
+
+export const checkFollows: RequestHandler = async (req, res, next) => {
+  const u1ID = (req as IUserRequest).user!._id;
+  const u2ID = req.params.userID;
+  const user2 = await UsersModel.findById(u2ID);
+  if (user2) {
+    const user1 = await UsersModel.findById(u1ID);
+    if (user1) (req as IFollowChecks).user1 = user1;
+    (req as IFollowChecks).user2 = user2;
+    // checks if user1 is following user2
+    (req as IFollowChecks).ImFollowingThem = user1!.following.some(
+      (id) => id.toString() === u2ID
+    );
+    // checks if user2 is following user1
+    (req as IFollowChecks).TheyAreFollowingMe = user2.following.some(
+      (id) => id.toString() === u1ID
+    );
+    next();
+  } else {
+    next(trigger404("User", u2ID));
   }
 };
