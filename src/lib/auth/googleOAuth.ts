@@ -3,13 +3,13 @@ import UsersModel from "../../api/users/model";
 import { createAccessToken } from "./tools";
 require("dotenv").config();
 
-const { CLIENT_ID, CLIENT_SECRET, API_DEV_URL } = process.env;
+const { CLIENT_ID, CLIENT_SECRET, API_URL } = process.env;
 
 const googleStrategy = new GoogleStrategy(
   {
     clientID: CLIENT_ID!,
     clientSecret: CLIENT_SECRET!,
-    callbackURL: `${API_DEV_URL}/users/googleLogin`,
+    callbackURL: `${API_URL}/users/googleLogin`,
   },
   async (_, __, profile, passportNext) => {
     try {

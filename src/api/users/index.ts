@@ -62,6 +62,7 @@ UsersRouter.get(
     try {
       res.redirect(
         `${process.env.FE_DEV_URL}/googleRedirect?accessToken=${
+          // change it after DEV stage is done
           (req.user as IGoogleLoginReq).accessToken
         }`
       );

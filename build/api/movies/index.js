@@ -30,7 +30,7 @@ MoviesRouter.get("/", jwt_1.JWTTokenAuth, (req, res, next) => __awaiter(void 0, 
             .skip(options.skip)
             .limit(options.limit);
         const totalMovies = yield model_1.default.countDocuments(query.criteria);
-        const links = query.links(`${process.env.FE_DEV_URL}/movies`, totalMovies);
+        const links = query.links(`${process.env.FE_DEV_URL}/movies`, totalMovies); // Links will be changed after DEV stage is done
         res.send({ totalMovies, movies, links });
     }
     catch (error) {

@@ -69,7 +69,9 @@ UsersRouter.get("/googleLogin", passport_1.default.authenticate("google", {
     scope: ["profile", "email"],
 }), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        res.redirect(`${process.env.FE_DEV_URL}/googleRedirect?accessToken=${req.user.accessToken}`);
+        res.redirect(`${process.env.FE_DEV_URL}/googleRedirect?accessToken=${
+        // change it after DEV stage is done
+        req.user.accessToken}`);
     }
     catch (error) {
         next(error);

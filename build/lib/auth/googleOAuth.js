@@ -16,12 +16,11 @@ const passport_google_oauth20_1 = require("passport-google-oauth20");
 const model_1 = __importDefault(require("../../api/users/model"));
 const tools_1 = require("./tools");
 require("dotenv").config();
-const { CLIENT_ID, CLIENT_SECRET, API_DEV_URL } = process.env;
-console.log({ CLIENT_ID, CLIENT_SECRET, API_DEV_URL });
+const { CLIENT_ID, CLIENT_SECRET, API_URL } = process.env;
 const googleStrategy = new passport_google_oauth20_1.Strategy({
     clientID: CLIENT_ID,
     clientSecret: CLIENT_SECRET,
-    callbackURL: `${API_DEV_URL}/users/googleLogin`,
+    callbackURL: `${API_URL}/users/googleLogin`,
 }, (_, __, profile, passportNext) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { email, given_name, family_name, sub, picture } = profile._json;
