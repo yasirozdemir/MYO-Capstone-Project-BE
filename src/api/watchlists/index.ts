@@ -78,12 +78,12 @@ WLRouter.put(
   checkIsMemberOfWL,
   async (req, res, next) => {
     try {
-      const editedWL = await WLsModel.findByIdAndUpdate(
+      const watchlist = await WLsModel.findByIdAndUpdate(
         req.params.WLID,
         req.body,
         { new: true, runValidators: true }
       );
-      res.send(editedWL);
+      res.send(watchlist);
     } catch (error) {
       next(error);
     }
