@@ -25,9 +25,11 @@ const UsersSchema = new Schema({
 
 UsersSchema.pre("save", async function () {
   const newUser = this;
-  const pw = newUser.password;
-  const hashedPW = await bcrypt.hash(pw, 11);
-  newUser.password = hashedPW;
+  if (newUser.isModified("password")) {
+    const pw = newUser.password;
+    const hashedPW = await bcrypt.hash(pw, 11);
+    newUser.password = hashedPW;
+  }
 });
 
 UsersSchema.pre("findOneAndUpdate", async function () {
