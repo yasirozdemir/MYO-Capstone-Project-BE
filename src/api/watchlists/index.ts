@@ -3,8 +3,9 @@ import { IUserRequest, JWTTokenAuth } from "../../lib/auth/jwt";
 import WLsModel from "./model";
 import UsersModel from "../users/model";
 import UsersRouter from "../users";
-import { checkMember } from "../../lib/middlewares";
+import { checkIsLiked, checkIsMemberOfWL } from "../../lib/middlewares";
 import { trigger404 } from "../../errorHandlers";
+import createHttpError from "http-errors";
 const q2m = require("query-to-mongo");
 
 // I'll call Watchlist WL
@@ -60,28 +61,63 @@ UsersRouter.get("/:userID/watchlists", JWTTokenAuth, async (req, res, next) => {
 });
 
 // Edit a Watchlist
-WLRouter.put("/:WLID", JWTTokenAuth, checkMember, async (req, res, next) => {
-  try {
-    const editedWL = await WLsModel.findByIdAndUpdate(
-      req.params.WLID,
-      req.body,
-      { new: true, runValidators: true }
-    );
-    res.send(editedWL);
-  } catch (error) {
-    next(error);
+WLRouter.put(
+  "/:WLID",
+  JWTTokenAuth,
+  checkIsMemberOfWL,
+  async (req, res, next) => {
+    try {
+      const editedWL = await WLsModel.findByIdAndUpdate(
+        req.params.WLID,
+        req.body,
+        { new: true, runValidators: true }
+      );
+      res.send(editedWL);
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
 
 // Delete a Watchlist
-WLRouter.delete("/:WLID", JWTTokenAuth, checkMember, async (req, res, next) => {
-  try {
-    const deletedWL = await WLsModel.findByIdAndDelete(req.params.WLID);
-    if (deletedWL) res.status(204).send();
-    else trigger404("Watchlist", req.params.WLID);
-  } catch (error) {
-    next(error);
+WLRouter.delete(
+  "/:WLID",
+  JWTTokenAuth,
+  checkIsMemberOfWL,
+  async (req, res, next) => {
+    try {
+      const deletedWL = await WLsModel.findByIdAndDelete(req.params.WLID);
+      if (deletedWL) res.status(204).send();
+      else trigger404("Watchlist", req.params.WLID);
+    } catch (error) {
+      next(error);
+    }
   }
-});
+);
+
+// Like a Watchlist
+WLRouter.post(
+  "/:WLID/likes",
+  JWTTokenAuth,
+  checkIsLiked,
+  async (req, res, next) => {
+    try {
+      if (!(req as IUserRequest).isLiked) {
+        const userID = (req as IUserRequest).user!._id;
+        await WLsModel.findByIdAndUpdate(req.params.WLID, {
+          $push: { likes: userID },
+        });
+        await UsersModel.findByIdAndUpdate(userID, {
+          $push: { likedWatchlists: req.params.WLID },
+        });
+        res.send({ message: "Liked!" });
+      } else {
+        next(createHttpError(400, "You've already liked this watchlist!"));
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 export default WLRouter;
