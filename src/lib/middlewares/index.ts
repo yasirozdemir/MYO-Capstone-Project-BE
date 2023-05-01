@@ -45,6 +45,9 @@ export interface IFollowChecks extends Request {
 export const checkFollows: RequestHandler = async (req, res, next) => {
   const u1ID = (req as IUserRequest).user!._id;
   const u2ID = req.params.userID;
+  if (u1ID === u2ID) {
+    next(createHttpError(400, "You cannot follow yourself!"));
+  }
   const user2 = await UsersModel.findById(u2ID);
   if (user2) {
     const user1 = await UsersModel.findById(u1ID);
