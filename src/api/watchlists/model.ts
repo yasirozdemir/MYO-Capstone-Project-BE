@@ -10,7 +10,7 @@ const WatchlistSchema = new Schema(
     cover: {
       type: String,
       default:
-        "https://res.cloudinary.com/yasirdev/image/upload/v1682762502/capstone/dev/cover_pwdaaj.png",
+        "https://res.cloudinary.com/yasirdev/image/upload/v1682762502/WhataMovie/watchlists/covers/watchlist_default.png",
     },
     members: [{ type: mongoose.Types.ObjectId, ref: "user" }],
     movies: [{ type: mongoose.Types.ObjectId, ref: "movie" }],
