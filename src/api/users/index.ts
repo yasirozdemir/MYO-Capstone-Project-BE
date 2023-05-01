@@ -6,7 +6,6 @@ import { IUserRequest, JWTTokenAuth } from "../../lib/auth/jwt";
 import { createAccessToken, createRefreshToken } from "../../lib/auth/tools";
 import passport from "passport";
 import { IGoogleLoginReq } from "../../lib/auth/googleOAuth";
-import { trigger404 } from "../../errorHandlers";
 import { IFollowChecks, checkFollows } from "../../lib/middlewares";
 
 const UsersRouter = express.Router();
@@ -123,7 +122,13 @@ UsersRouter.get("/:userID", JWTTokenAuth, async (req, res, next) => {
   try {
     const user = await UsersModel.findById(req.params.userID);
     if (user) res.send(user);
-    else next(trigger404("User", req.params.userID));
+    else
+      next(
+        createHttpError(
+          404,
+          `User with the ID of ${req.params.userID} not found!`
+        )
+      );
   } catch (error) {
     next(error);
   }

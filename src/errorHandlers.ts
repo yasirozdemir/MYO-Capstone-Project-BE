@@ -1,10 +1,5 @@
 import mongoose from "mongoose";
 import { ErrorRequestHandler } from "express";
-import createHttpError from "http-errors";
-
-export function trigger404(el: string, id: string) {
-  createHttpError(404, `${el} with the ID ${id} not found!`);
-}
 
 export const badRequestHandler: ErrorRequestHandler = (err, req, res, next) => {
   if (err.status === 400 || err instanceof mongoose.Error.ValidationError) {

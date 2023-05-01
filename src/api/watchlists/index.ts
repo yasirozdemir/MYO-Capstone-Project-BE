@@ -3,8 +3,12 @@ import { IUserRequest, JWTTokenAuth } from "../../lib/auth/jwt";
 import WLsModel from "./model";
 import UsersModel from "../users/model";
 import UsersRouter from "../users";
-import { checkIsLiked, checkIsMemberOfWL } from "../../lib/middlewares";
-import { trigger404 } from "../../errorHandlers";
+import {
+  IFollowChecks,
+  checkFollows,
+  checkIsLiked,
+  checkIsMemberOfWL,
+} from "../../lib/middlewares";
 import createHttpError from "http-errors";
 import { coverUploader } from "../../lib/cloudinary";
 const q2m = require("query-to-mongo");
@@ -44,7 +48,13 @@ WLRouter.get("/:WLID", JWTTokenAuth, async (req, res, next) => {
   try {
     const WL = await WLsModel.findById(req.params.WLID);
     if (WL) res.send(WL);
-    else next(trigger404("watchlist", req.params.WLID));
+    else
+      next(
+        createHttpError(
+          404,
+          `Watchlist with the ID of ${req.params.WLID} not found!`
+        )
+      );
   } catch (error) {
     next(error);
   }
@@ -89,7 +99,13 @@ WLRouter.delete(
     try {
       const deletedWL = await WLsModel.findByIdAndDelete(req.params.WLID);
       if (deletedWL) res.status(204).send();
-      else trigger404("Watchlist", req.params.WLID);
+      else
+        next(
+          createHttpError(
+            404,
+            `Watchlist with the ID of ${req.params.WLID} not found!`
+          )
+        );
     } catch (error) {
       next(error);
     }
@@ -161,7 +177,12 @@ WLRouter.post(
           await WL.save();
           res.send({ cover: req.file.path });
         } else {
-          trigger404("Watchlist", req.params.WLID);
+          next(
+            createHttpError(
+              404,
+              `Watchlist with the ID of ${req.params.WLID} not found!`
+            )
+          );
         }
       } else {
         next(createHttpError(400, "Please provide an image file!"));
@@ -186,7 +207,60 @@ WLRouter.delete(
         await WL.save();
         res.status(204).send();
       } else {
-        trigger404("Watchlist", req.params.WLID);
+        next(
+          createHttpError(
+            404,
+            `Watchlist with the ID of ${req.params.WLID} not found!`
+          )
+        );
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// Add a new member to the Watchlist (only if they are following the user)
+WLRouter.post(
+  "/:WLID/members/:userID",
+  JWTTokenAuth,
+  checkIsMemberOfWL,
+  checkFollows,
+  async (req, res, next) => {
+    try {
+      if ((req as IFollowChecks).TheyAreFollowingMe) {
+        const WL = await WLsModel.findById(req.params.WLID);
+        if (WL) {
+          const user2 = (req as IFollowChecks).user2;
+          if (!WL.members.includes(req.params.userID)) {
+            WL.members = [...WL.members, req.params.userID];
+            await WL.save();
+            user2.watchlists = [...user2.watchlists, req.params.WLID];
+            await user2.save();
+            res.send(WL.members);
+          } else {
+            next(
+              createHttpError(
+                400,
+                "This user is already a member of this watchlist!"
+              )
+            );
+          }
+        } else {
+          next(
+            createHttpError(
+              404,
+              `Watchlist with the ID of ${req.params.WLID} not found!`
+            )
+          );
+        }
+      } else {
+        next(
+          createHttpError(
+            400,
+            "The user is not following you, you can't add them as a member!"
+          )
+        );
       }
     } catch (error) {
       next(error);
