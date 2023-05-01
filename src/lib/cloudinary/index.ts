@@ -6,7 +6,16 @@ export const avatarUploader = multer({
   storage: new CloudinaryStorage({
     cloudinary,
     params: {
-      folder: "capstone/users/avatars", // CHANGE FOLDER NAME LATER
+      folder: "WhataMovie/users/avatars",
     } as { folder: string },
   }),
 }).single("avatar");
+
+export const coverUploader = multer({
+  storage: new CloudinaryStorage({
+    cloudinary,
+    params: {
+      folder: "WhataMovie/users/avatars",
+    } as { folder: string },
+  }),
+}).single("cover");
