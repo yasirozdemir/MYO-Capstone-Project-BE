@@ -12,7 +12,7 @@ const UsersSchema = new Schema({
     type: String,
     required: true,
     default:
-      "https://res.cloudinary.com/yasirdev/image/upload/v1682762639/capstone/dev/user_qga843.jpg",
+      "https://res.cloudinary.com/yasirdev/image/upload/v1682762639/WhataMovie/users/avatars/user_default.jpg",
   },
   verified: { type: Boolean, default: false },
   watchlists: [{ type: mongoose.Types.ObjectId, ref: "watchlist" }],
