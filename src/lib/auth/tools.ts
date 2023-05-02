@@ -6,6 +6,7 @@ require("dotenv").config();
 export interface TokenPayload {
   _id: string;
   email: string;
+  verified: boolean;
 }
 
 const { JWT_SECRET, JWT_REFRESH_SECRET } = process.env;
@@ -14,10 +15,12 @@ export const createTokens = async (user: IUserDocument) => {
   const accessToken = await createAccessToken({
     _id: user._id,
     email: user.email,
+    verified: user.verified,
   });
   const refreshToken = await createRefreshToken({
     _id: user._id,
     email: user.email,
+    verified: user.verified,
   });
   user.refreshToken = refreshToken;
   await user.save();

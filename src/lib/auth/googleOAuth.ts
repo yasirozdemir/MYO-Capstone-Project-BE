@@ -19,6 +19,7 @@ const googleStrategy = new GoogleStrategy(
         const accessToken = await createAccessToken({
           _id: user._id,
           email: user.email,
+          verified: user.verified,
         });
         passportNext(null, { accessToken });
       } else {
@@ -34,6 +35,7 @@ const googleStrategy = new GoogleStrategy(
         const accessToken = await createAccessToken({
           _id,
           email: newUser.email,
+          verified: newUser.verified,
         });
         passportNext(null, { accessToken });
       }

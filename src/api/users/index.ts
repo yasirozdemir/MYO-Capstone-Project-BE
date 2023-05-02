@@ -17,7 +17,11 @@ UsersRouter.post("/", async (req, res, next) => {
     if (!emailInUse) {
       const newUser = new UsersModel(req.body);
       const user = await newUser.save();
-      const payload = { _id: user._id, email: user.email };
+      const payload = {
+        _id: user._id,
+        email: user.email,
+        verified: user.verified,
+      };
       const accessToken = await createAccessToken(payload);
       const refreshToken = await createRefreshToken(payload);
       await UsersModel.findByIdAndUpdate(user._id, {
@@ -38,7 +42,11 @@ UsersRouter.post("/session", async (req, res, next) => {
     const { email, password } = req.body;
     const user = await UsersModel.checkCredentials(email, password);
     if (user) {
-      const payload = { _id: user._id, email: user.email };
+      const payload = {
+        _id: user._id,
+        email: user.email,
+        verified: user.verified,
+      };
       const accessToken = await createAccessToken(payload);
       const refreshToken = await createRefreshToken(payload);
       await UsersModel.findByIdAndUpdate(user._id, {
