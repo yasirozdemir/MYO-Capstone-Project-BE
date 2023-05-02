@@ -12,6 +12,7 @@ import {
 import passport from "passport";
 import { IGoogleLoginReq } from "../../lib/auth/googleOAuth";
 import { IFollowChecks, checkFollows } from "../../lib/middlewares";
+import { sendVerifyMail } from "../../lib/mail";
 
 const UsersRouter = express.Router();
 
@@ -31,6 +32,7 @@ UsersRouter.post("/", async (req, res, next) => {
       const refreshToken = await createRefreshToken(payload);
       const verificationToken = await createVerificationToken(payload);
       const verifyURL = `${process.env.API_URL}/users/verify?token=${verificationToken}`;
+      sendVerifyMail(user.email, verifyURL);
       await UsersModel.findByIdAndUpdate(user._id, {
         refreshToken: refreshToken,
       });
@@ -41,6 +43,33 @@ UsersRouter.post("/", async (req, res, next) => {
       });
     } else {
       next(createHttpError(400, "The email is already in use!"));
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Verify the user
+UsersRouter.get("/verify", async (req, res, next) => {
+  try {
+    const token = req.query.token;
+    if (token) {
+      const { _id, email } = await verifyVerificationToken(token as string);
+      const user = await UsersModel.findOneAndUpdate(
+        { _id, email },
+        { verified: true },
+        { new: true }
+      );
+      if (user) {
+        if (user.verified)
+          res.redirect(`${process.env.FE_DEV_URL}/verified?v=true&u=true`);
+        // change it after DEV stage is done
+        else res.redirect(`${process.env.FE_DEV_URL}/verified?v=false&u=true`);
+        // change it after DEV stage is done
+      } else res.redirect(`${process.env.FE_DEV_URL}/verified?v=false&u=false`);
+      // change it after DEV stage is done
+    } else {
+      next(createHttpError(400, "No verification token in the URL!"));
     }
   } catch (error) {
     next(error);
@@ -244,21 +273,5 @@ UsersRouter.delete(
     }
   }
 );
-
-// Verify the user
-UsersRouter.post("/verify", async (req, res, next) => {
-  try {
-    const token = req.query.token;
-    if (token) {
-      const { _id, email } = await verifyVerificationToken(token as string);
-      await UsersModel.findOneAndUpdate({ _id, email }, { verified: true });
-      res.send({ message: "User verified successfully!" });
-    } else {
-      next(createHttpError(400, "No verification token in the URL!"));
-    }
-  } catch (error) {
-    next(error);
-  }
-});
 
 export default UsersRouter;
