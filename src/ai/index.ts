@@ -1,13 +1,8 @@
 import express from "express";
 import createHttpError from "http-errors";
 import { Configuration, OpenAIApi } from "openai";
-import MoviesModel from "../api/movies/model";
 import { IMovie } from "../interfaces/IMovie";
-import axios from "axios";
-
-function csvToArray(csv: string) {
-  return csv.split(", ").map((el) => el.trim());
-}
+import { movieDealer } from "../lib/functions";
 
 const aiConfig = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
@@ -64,52 +59,5 @@ AiRouter.post("/prompt-to-movies", async (req, res, next) => {
     next(error);
   }
 });
-
-const movieDealer = async (title: string) => {
-  const res = await axios.get(
-    `http://www.omdbapi.com/?t=${title}&type=movie&apikey=${process.env.OMDB_API_KEY}`
-  );
-  if (res.status === 200) {
-    const {
-      Title,
-      Released,
-      Rated,
-      Runtime,
-      Genre,
-      Poster,
-      imdbRating,
-      imdbID,
-      Plot,
-      Director,
-      Writer,
-      Actors,
-    } = res.data;
-    const isExisted = await MoviesModel.findOne({ imdbID });
-    if (!isExisted) {
-      const movieInf = {
-        title: Title,
-        released: Released,
-        rated: Rated,
-        duration: Runtime,
-        genres: csvToArray(Genre),
-        poster: Poster,
-        imdbRating,
-        imdbID,
-        description: Plot,
-        director: csvToArray(Director),
-        writer: csvToArray(Writer),
-        actors: csvToArray(Actors),
-      };
-      const movie = new MoviesModel(movieInf);
-      await movie.save();
-      return movie;
-    } else {
-      const movie = isExisted;
-      return movie;
-    }
-  } else {
-    throw new createHttpError[503]();
-  }
-};
 
 export default AiRouter;
