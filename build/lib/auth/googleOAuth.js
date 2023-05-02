@@ -15,8 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const passport_google_oauth20_1 = require("passport-google-oauth20");
 const model_1 = __importDefault(require("../../api/users/model"));
 const tools_1 = require("./tools");
-const dotenv_1 = __importDefault(require("dotenv"));
-dotenv_1.default.config();
+require("dotenv").config;
 const { CLIENT_ID, CLIENT_SECRET, API_URL } = process.env;
 const googleStrategy = new passport_google_oauth20_1.Strategy({
     clientID: CLIENT_ID,
