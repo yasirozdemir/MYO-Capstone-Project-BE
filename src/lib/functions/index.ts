@@ -1,6 +1,7 @@
 import axios from "axios";
 import MoviesModel from "../../api/movies/model";
 import createHttpError from "http-errors";
+import { IMovie } from "../../interfaces/IMovie";
 
 export function csvToArray(csv: string) {
   return csv.split(", ").map((el) => el.trim());
@@ -34,7 +35,7 @@ export const movieDealer = async (title: string, year?: string) => {
     } = res.data;
     const isExisted = await MoviesModel.findOne({ imdbID });
     if (!isExisted) {
-      const movieInf = {
+      const movieInf: IMovie = {
         title: Title,
         released: Released,
         rated: Rated,
