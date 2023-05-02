@@ -14,7 +14,11 @@ export const JWTTokenAuth: RequestHandler = async (req, res, next) => {
     const accessToken = req.headers.authorization.replace("Bearer ", "");
     try {
       const payload = await verifyAccessToken(accessToken);
-      req.user = { _id: payload._id, email: payload.email };
+      req.user = {
+        _id: payload._id,
+        email: payload.email,
+        verified: payload.verified,
+      };
       next();
     } catch (error) {
       next(createHttpError(401, "Expired token!"));
