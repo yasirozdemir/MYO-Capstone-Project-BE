@@ -3,7 +3,12 @@ import express from "express";
 import UsersModel from "./model";
 import { avatarUploader } from "../../lib/cloudinary";
 import { IUserRequest, JWTTokenAuth } from "../../lib/auth/jwt";
-import { createAccessToken, createRefreshToken } from "../../lib/auth/tools";
+import {
+  createAccessToken,
+  createRefreshToken,
+  createVerificationToken,
+  verifyVerificationToken,
+} from "../../lib/auth/tools";
 import passport from "passport";
 import { IGoogleLoginReq } from "../../lib/auth/googleOAuth";
 import { IFollowChecks, checkFollows } from "../../lib/middlewares";
@@ -24,10 +29,16 @@ UsersRouter.post("/", async (req, res, next) => {
       };
       const accessToken = await createAccessToken(payload);
       const refreshToken = await createRefreshToken(payload);
+      const verificationToken = await createVerificationToken(payload);
+      const verifyURL = `${process.env.API_URL}/users/verify?token=${verificationToken}`;
       await UsersModel.findByIdAndUpdate(user._id, {
         refreshToken: refreshToken,
       });
-      res.status(201).send({ user, accessToken, refreshToken });
+      res.status(201).send({
+        user,
+        accessToken,
+        refreshToken,
+      });
     } else {
       next(createHttpError(400, "The email is already in use!"));
     }
@@ -233,5 +244,21 @@ UsersRouter.delete(
     }
   }
 );
+
+// Verify the user
+UsersRouter.post("/verify", async (req, res, next) => {
+  try {
+    const token = req.query.token;
+    if (token) {
+      const { _id, email } = await verifyVerificationToken(token as string);
+      await UsersModel.findOneAndUpdate({ _id, email }, { verified: true });
+      res.send({ message: "User verified successfully!" });
+    } else {
+      next(createHttpError(400, "No verification token in the URL!"));
+    }
+  } catch (error) {
+    next(error);
+  }
+});
 
 export default UsersRouter;
