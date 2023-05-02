@@ -1,6 +1,6 @@
 import express from "express";
 import MoviesModel from "./model";
-import { JWTTokenAuth } from "../../lib/auth/jwt";
+import { IUserRequest, JWTTokenAuth } from "../../lib/auth/jwt";
 import WLRouter from "../watchlists";
 import {
   IMovieWLChecks,
@@ -8,6 +8,8 @@ import {
   checkMovieInWL,
 } from "../../lib/middlewares";
 import createHttpError from "http-errors";
+import axios from "axios";
+import { movieDealer } from "../../lib/functions";
 const q2m = require("query-to-mongo");
 
 const MoviesRouter = express.Router();
@@ -76,5 +78,20 @@ WLRouter.delete(
     }
   }
 );
+
+// Add movies into DB (only if the user is verified || logged in with Google)
+MoviesRouter.post("/", JWTTokenAuth, async (req, res, next) => {
+  try {
+    const isVerified = (req as IUserRequest).user!.verified;
+    if (isVerified) {
+      const movie = await movieDealer(req.body.title, req.body.year);
+      res.send(movie);
+    } else {
+      next(createHttpError(401, "You haven't verify your account yet!"));
+    }
+  } catch (error) {
+    next(error);
+  }
+});
 
 export default MoviesRouter;
