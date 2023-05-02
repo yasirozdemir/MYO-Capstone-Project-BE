@@ -29,6 +29,7 @@ const googleStrategy = new passport_google_oauth20_1.Strategy({
             const accessToken = yield (0, tools_1.createAccessToken)({
                 _id: user._id,
                 email: user.email,
+                verified: true,
             });
             passportNext(null, { accessToken });
         }
@@ -39,12 +40,14 @@ const googleStrategy = new passport_google_oauth20_1.Strategy({
                 email,
                 avatar: picture,
                 googleID: sub,
+                verified: true,
                 password: Math.random().toString(36).slice(-10),
             });
             const { _id } = yield newUser.save();
             const accessToken = yield (0, tools_1.createAccessToken)({
                 _id,
                 email: newUser.email,
+                verified: newUser.verified,
             });
             passportNext(null, { accessToken });
         }

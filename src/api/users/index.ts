@@ -62,12 +62,9 @@ UsersRouter.get("/verify", async (req, res, next) => {
       );
       if (user) {
         if (user.verified)
-          res.redirect(`${process.env.FE_DEV_URL}/verified?v=true&u=true`);
-        // change it after DEV stage is done
-        else res.redirect(`${process.env.FE_DEV_URL}/verified?v=false&u=true`);
-        // change it after DEV stage is done
-      } else res.redirect(`${process.env.FE_DEV_URL}/verified?v=false&u=false`);
-      // change it after DEV stage is done
+          res.redirect(`${process.env.FE_URL}/verified?v=true&u=true`);
+        else res.redirect(`${process.env.FE_URL}/verified?v=false&u=true`);
+      } else res.redirect(`${process.env.FE_URL}/verified?v=false&u=false`);
     } else {
       next(createHttpError(400, "No verification token in the URL!"));
     }
@@ -109,8 +106,7 @@ UsersRouter.get(
   async (req, res, next) => {
     try {
       res.redirect(
-        `${process.env.FE_DEV_URL}/googleRedirect?accessToken=${
-          // change it after DEV stage is done
+        `${process.env.FE_URL}/googleRedirect?accessToken=${
           (req.user as IGoogleLoginReq).accessToken
         }`
       );

@@ -19,7 +19,7 @@ const googleStrategy = new GoogleStrategy(
         const accessToken = await createAccessToken({
           _id: user._id,
           email: user.email,
-          verified: true, // Users joined with Google must already have a verified email
+          verified: true,
         });
         passportNext(null, { accessToken });
       } else {
@@ -29,6 +29,7 @@ const googleStrategy = new GoogleStrategy(
           email,
           avatar: picture,
           googleID: sub,
+          verified: true,
           password: Math.random().toString(36).slice(-10),
         });
         const { _id } = await newUser.save();

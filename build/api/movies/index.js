@@ -18,6 +18,7 @@ const jwt_1 = require("../../lib/auth/jwt");
 const watchlists_1 = __importDefault(require("../watchlists"));
 const middlewares_1 = require("../../lib/middlewares");
 const http_errors_1 = __importDefault(require("http-errors"));
+const functions_1 = require("../../lib/functions");
 const q2m = require("query-to-mongo");
 const MoviesRouter = express_1.default.Router();
 // Get all the Movies in the DB
@@ -30,7 +31,7 @@ MoviesRouter.get("/", jwt_1.JWTTokenAuth, (req, res, next) => __awaiter(void 0, 
             .skip(options.skip)
             .limit(options.limit);
         const totalMovies = yield model_1.default.countDocuments(query.criteria);
-        const links = query.links(`${process.env.FE_DEV_URL}/movies`, totalMovies); // Links will be changed after DEV stage is done
+        const links = query.links(`${process.env.FE_URL}/movies`, totalMovies);
         res.send({ totalMovies, movies, links });
     }
     catch (error) {
@@ -65,6 +66,22 @@ watchlists_1.default.delete("/:WLID/movies/:movieID", jwt_1.JWTTokenAuth, middle
         }
         else {
             next((0, http_errors_1.default)(400, "This movie is not into this watchlist!"));
+        }
+    }
+    catch (error) {
+        next(error);
+    }
+}));
+// Add movies into DB (only if the user is verified || logged in with Google)
+MoviesRouter.post("/", jwt_1.JWTTokenAuth, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const isVerified = req.user.verified;
+        if (isVerified) {
+            const movie = yield (0, functions_1.movieDealer)(req.body.title, req.body.year);
+            res.send(movie);
+        }
+        else {
+            next((0, http_errors_1.default)(401, "You haven't verify your account yet!"));
         }
     }
     catch (error) {

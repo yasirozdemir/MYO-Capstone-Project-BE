@@ -24,7 +24,7 @@ MoviesRouter.get("/", JWTTokenAuth, async (req, res, next) => {
       .skip(options.skip)
       .limit(options.limit);
     const totalMovies = await MoviesModel.countDocuments(query.criteria);
-    const links = query.links(`${process.env.FE_DEV_URL}/movies`, totalMovies); // Links will be changed after DEV stage is done
+    const links = query.links(`${process.env.FE_URL}/movies`, totalMovies);
     res.send({ totalMovies, movies, links });
   } catch (error) {
     next(error);

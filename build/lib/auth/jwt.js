@@ -23,7 +23,11 @@ const JWTTokenAuth = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
         const accessToken = req.headers.authorization.replace("Bearer ", "");
         try {
             const payload = yield (0, tools_1.verifyAccessToken)(accessToken);
-            req.user = { _id: payload._id, email: payload.email };
+            req.user = {
+                _id: payload._id,
+                email: payload.email,
+                verified: payload.verified,
+            };
             next();
         }
         catch (error) {

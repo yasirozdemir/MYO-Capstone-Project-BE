@@ -12,20 +12,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verifyAndCreateNewTokens = exports.verifyRefreshToken = exports.createRefreshToken = exports.verifyAccessToken = exports.createAccessToken = exports.createTokens = void 0;
+exports.verifyVerificationToken = exports.createVerificationToken = exports.verifyAndCreateNewTokens = exports.verifyRefreshToken = exports.createRefreshToken = exports.verifyAccessToken = exports.createAccessToken = exports.createTokens = void 0;
 const http_errors_1 = __importDefault(require("http-errors"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const model_1 = __importDefault(require("../../api/users/model"));
 require("dotenv").config();
-const { JWT_SECRET, JWT_REFRESH_SECRET } = process.env;
+const { JWT_SECRET, JWT_REFRESH_SECRET, JWT_VERIFY_SECRET } = process.env;
 const createTokens = (user) => __awaiter(void 0, void 0, void 0, function* () {
     const accessToken = yield (0, exports.createAccessToken)({
         _id: user._id,
         email: user.email,
+        verified: user.verified,
     });
     const refreshToken = yield (0, exports.createRefreshToken)({
         _id: user._id,
         email: user.email,
+        verified: user.verified,
     });
     user.refreshToken = refreshToken;
     yield user.save();
@@ -74,7 +76,21 @@ const verifyAndCreateNewTokens = (currentRefreshToken) => __awaiter(void 0, void
         }
     }
     catch (error) {
-        throw new http_errors_1.default[401]("expired");
+        throw new http_errors_1.default[401]("Expired refresh token!");
     }
 });
 exports.verifyAndCreateNewTokens = verifyAndCreateNewTokens;
+const createVerificationToken = (payload) => new Promise((resolve, reject) => jsonwebtoken_1.default.sign(payload, JWT_VERIFY_SECRET, { expiresIn: "1000d" }, (err, token) => {
+    if (err)
+        reject(err);
+    else
+        resolve(token);
+}));
+exports.createVerificationToken = createVerificationToken;
+const verifyVerificationToken = (token) => new Promise((resolve, reject) => jsonwebtoken_1.default.verify(token, JWT_VERIFY_SECRET, (err, payload) => {
+    if (err)
+        reject(err);
+    else
+        resolve(payload);
+}));
+exports.verifyVerificationToken = verifyVerificationToken;

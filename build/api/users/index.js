@@ -20,6 +20,7 @@ const jwt_1 = require("../../lib/auth/jwt");
 const tools_1 = require("../../lib/auth/tools");
 const passport_1 = __importDefault(require("passport"));
 const middlewares_1 = require("../../lib/middlewares");
+const mail_1 = require("../../lib/mail");
 const UsersRouter = express_1.default.Router();
 // Register
 UsersRouter.post("/", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -28,16 +29,51 @@ UsersRouter.post("/", (req, res, next) => __awaiter(void 0, void 0, void 0, func
         if (!emailInUse) {
             const newUser = new model_1.default(req.body);
             const user = yield newUser.save();
-            const payload = { _id: user._id, email: user.email };
+            const payload = {
+                _id: user._id,
+                email: user.email,
+                verified: user.verified,
+            };
             const accessToken = yield (0, tools_1.createAccessToken)(payload);
             const refreshToken = yield (0, tools_1.createRefreshToken)(payload);
+            const verificationToken = yield (0, tools_1.createVerificationToken)(payload);
+            const verifyURL = `${process.env.API_URL}/users/verify?token=${verificationToken}`;
+            (0, mail_1.sendVerifyMail)(user.email, verifyURL);
             yield model_1.default.findByIdAndUpdate(user._id, {
                 refreshToken: refreshToken,
             });
-            res.status(201).send({ user, accessToken, refreshToken });
+            res.status(201).send({
+                user,
+                accessToken,
+                refreshToken,
+            });
         }
         else {
             next((0, http_errors_1.default)(400, "The email is already in use!"));
+        }
+    }
+    catch (error) {
+        next(error);
+    }
+}));
+// Verify the user
+UsersRouter.get("/verify", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const token = req.query.token;
+        if (token) {
+            const { _id, email } = yield (0, tools_1.verifyVerificationToken)(token);
+            const user = yield model_1.default.findOneAndUpdate({ _id, email }, { verified: true }, { new: true });
+            if (user) {
+                if (user.verified)
+                    res.redirect(`${process.env.FE_URL}/verified?v=true&u=true`);
+                else
+                    res.redirect(`${process.env.FE_URL}/verified?v=false&u=true`);
+            }
+            else
+                res.redirect(`${process.env.FE_URL}/verified?v=false&u=false`);
+        }
+        else {
+            next((0, http_errors_1.default)(400, "No verification token in the URL!"));
         }
     }
     catch (error) {
@@ -50,7 +86,11 @@ UsersRouter.post("/session", (req, res, next) => __awaiter(void 0, void 0, void 
         const { email, password } = req.body;
         const user = yield model_1.default.checkCredentials(email, password);
         if (user) {
-            const payload = { _id: user._id, email: user.email };
+            const payload = {
+                _id: user._id,
+                email: user.email,
+                verified: user.verified,
+            };
             const accessToken = yield (0, tools_1.createAccessToken)(payload);
             const refreshToken = yield (0, tools_1.createRefreshToken)(payload);
             yield model_1.default.findByIdAndUpdate(user._id, {
@@ -69,9 +109,7 @@ UsersRouter.get("/googleLogin", passport_1.default.authenticate("google", {
     scope: ["profile", "email"],
 }), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        res.redirect(`${process.env.FE_DEV_URL}/googleRedirect?accessToken=${
-        // change it after DEV stage is done
-        req.user.accessToken}`);
+        res.redirect(`${process.env.FE_URL}/googleRedirect?accessToken=${req.user.accessToken}`);
     }
     catch (error) {
         next(error);

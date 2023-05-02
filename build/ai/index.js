@@ -15,11 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const http_errors_1 = __importDefault(require("http-errors"));
 const openai_1 = require("openai");
-const model_1 = __importDefault(require("../api/movies/model"));
-const axios_1 = __importDefault(require("axios"));
-function csvToArray(csv) {
-    return csv.split(", ").map((el) => el.trim());
-}
+const functions_1 = require("../lib/functions");
 const aiConfig = new openai_1.Configuration({
     apiKey: process.env.OPENAI_API_KEY,
 });
@@ -56,7 +52,7 @@ AiRouter.post("/prompt-to-movies", (req, res, next) => __awaiter(void 0, void 0,
             console.log(arrayString);
             const setMoviePromises = JSON.parse(arrayString).map((title) => {
                 return new Promise((resolve, reject) => {
-                    movieDealer(title)
+                    (0, functions_1.movieDealer)(title)
                         .then((movie) => {
                         moviesList.push(movie);
                         resolve();
@@ -76,37 +72,4 @@ AiRouter.post("/prompt-to-movies", (req, res, next) => __awaiter(void 0, void 0,
         next(error);
     }
 }));
-const movieDealer = (title) => __awaiter(void 0, void 0, void 0, function* () {
-    const res = yield axios_1.default.get(`http://www.omdbapi.com/?t=${title}&type=movie&apikey=${process.env.OMDB_API_KEY}`);
-    if (res.status === 200) {
-        const { Title, Released, Rated, Runtime, Genre, Poster, imdbRating, imdbID, Plot, Director, Writer, Actors, } = res.data;
-        const isExisted = yield model_1.default.findOne({ imdbID });
-        if (!isExisted) {
-            const movieInf = {
-                title: Title,
-                released: Released,
-                rated: Rated,
-                duration: Runtime,
-                genres: csvToArray(Genre),
-                poster: Poster,
-                imdbRating,
-                imdbID,
-                description: Plot,
-                director: csvToArray(Director),
-                writer: csvToArray(Writer),
-                actors: csvToArray(Actors),
-            };
-            const movie = new model_1.default(movieInf);
-            yield movie.save();
-            return movie;
-        }
-        else {
-            const movie = isExisted;
-            return movie;
-        }
-    }
-    else {
-        throw new http_errors_1.default[503]();
-    }
-});
 exports.default = AiRouter;
