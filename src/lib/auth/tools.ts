@@ -71,6 +71,6 @@ export const verifyAndCreateNewTokens = async (currentRefreshToken: string) => {
       return { accessToken, refreshToken };
     }
   } catch (error) {
-    throw new createHttpError[401]("expired");
+    throw new createHttpError[401]("Expired refresh token!");
   }
 };
