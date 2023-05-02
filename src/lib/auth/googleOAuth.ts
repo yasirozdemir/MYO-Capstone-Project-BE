@@ -19,7 +19,7 @@ const googleStrategy = new GoogleStrategy(
         const accessToken = await createAccessToken({
           _id: user._id,
           email: user.email,
-          verified: user.verified,
+          verified: true, // Users joined with Google must already have a verified email
         });
         passportNext(null, { accessToken });
       } else {
