@@ -14,7 +14,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.sendVerifyMail = void 0;
 const mail_1 = __importDefault(require("@sendgrid/mail"));
-// require("dotenv").config();
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
 mail_1.default.setApiKey(process.env.SENDGRID_API_KEY);
 const sendVerifyMail = (userMail, verifyURL) => __awaiter(void 0, void 0, void 0, function* () {
     const msg = {
