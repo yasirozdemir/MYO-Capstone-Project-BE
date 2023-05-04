@@ -53,8 +53,8 @@ UsersSchema.static("checkCredentials", async function (email, pw) {
   if (user) {
     const passwordMatch = await bcrypt.compare(pw, user.password);
     if (passwordMatch) return user;
-    else throw new createHttpError[401]("Wrong password!");
-  } else throw new createHttpError[401]("Wrong email!");
+    else throw new createHttpError[400]("Wrong password!");
+  } else throw new createHttpError[400]("Wrong email!");
 });
 
 export default model<IUserDocument, IUsersModel>("user", UsersSchema);
