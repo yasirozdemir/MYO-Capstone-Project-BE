@@ -221,13 +221,10 @@ UsersRouter.post(
 // Delete current avatar
 UsersRouter.delete("/me/avatar", JWTTokenAuth, async (req, res, next) => {
   try {
-    await UsersModel.findOneAndUpdate(
-      { _id: (req as IUserRequest).user!._id },
-      {
-        avatar:
-          "https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png",
-      }
-    );
+    await UsersModel.findByIdAndUpdate((req as IUserRequest).user!._id, {
+      avatar:
+        "https://res.cloudinary.com/yasirdev/image/upload/v1682762639/WhataMovie/users/avatars/user_default.jpg",
+    });
     res.status(204).send();
   } catch (error) {
     next(error);
