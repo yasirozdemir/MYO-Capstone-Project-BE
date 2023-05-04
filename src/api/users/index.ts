@@ -249,7 +249,10 @@ UsersRouter.post(
         await user1.save();
         user2.followers = [...user2.followers, user1._id];
         await user2.save();
-        res.send({ message: "Followed!" });
+        res.send({
+          message: `Following ${user2.name} ${user2.surname}!`,
+          followers: user2.followers,
+        });
       } else {
         next(createHttpError(400, "You're already following this user!"));
       }
@@ -278,7 +281,10 @@ UsersRouter.delete(
           (id) => id.toString() !== user1._id.toString()
         );
         await user2.save();
-        res.send({ message: "Unfollowed!" });
+        res.send({
+          message: `Unfollowed ${user2.name} ${user2.surname}!`,
+          followers: user2.followers,
+        });
       } else {
         next(createHttpError(400, "You've already unfollowed this user!"));
       }
