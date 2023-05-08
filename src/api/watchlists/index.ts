@@ -64,8 +64,15 @@ WLRouter.get("/:WLID", JWTTokenAuth, async (req, res, next) => {
 UsersRouter.get("/:userID/watchlists", JWTTokenAuth, async (req, res, next) => {
   try {
     const userID = req.params.userID;
-    const WLs = await WLsModel.find({ members: { $in: [userID] } });
-    res.send(WLs);
+    if (userID === "me") {
+      const WLs = await WLsModel.find({
+        members: { $in: [(req as IUserRequest).user?._id] },
+      });
+      res.send(WLs);
+    } else {
+      const WLs = await WLsModel.find({ members: { $in: [userID] } });
+      res.send(WLs);
+    }
   } catch (error) {
     next(error);
   }
