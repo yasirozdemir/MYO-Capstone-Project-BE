@@ -46,7 +46,7 @@ WLRouter.post("/", JWTTokenAuth, async (req, res, next) => {
 // Get a Watchlist with it's ID
 WLRouter.get("/:WLID", JWTTokenAuth, async (req, res, next) => {
   try {
-    const WL = await WLsModel.findById(req.params.WLID);
+    const WL = await WLsModel.findById(req.params.WLID).populate("movies");
     if (WL) res.send(WL);
     else
       next(

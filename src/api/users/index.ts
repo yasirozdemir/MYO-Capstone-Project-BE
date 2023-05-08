@@ -150,7 +150,7 @@ UsersRouter.get("/me", JWTTokenAuth, async (req, res, next) => {
         model: "user",
         select: "_id name surname",
       },
-      select: "_id name cover members likes createdAt",
+      select: "_id name cover members movies likes createdAt",
     });
     res.send(user);
   } catch (error) {
@@ -182,7 +182,7 @@ UsersRouter.get("/:userID", JWTTokenAuth, async (req, res, next) => {
         model: "user",
         select: "_id name surname",
       },
-      select: "_id name cover members likes createdAt",
+      select: "_id name cover members movies likes createdAt",
     });
     if (user) res.send(user);
     else
