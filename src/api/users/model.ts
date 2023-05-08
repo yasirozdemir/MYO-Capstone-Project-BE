@@ -33,8 +33,8 @@ UsersSchema.pre("save", async function () {
 });
 
 UsersSchema.pre("findOneAndUpdate", async function () {
-  const updatedUser = this.getUpdate() as { password: string };
-  if (updatedUser.password) {
+  const updatedUser = this.getUpdate() as { password?: string };
+  if (updatedUser && updatedUser.password) {
     const pw = updatedUser.password;
     const hashedPW = await bcrypt.hash(pw, 11);
     updatedUser.password = hashedPW;
@@ -44,6 +44,7 @@ UsersSchema.pre("findOneAndUpdate", async function () {
 UsersSchema.methods.toJSON = function () {
   const user = this.toObject();
   delete user.password;
+  delete user.refreshToken;
   delete user.__v;
   return user;
 };

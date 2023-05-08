@@ -55,6 +55,23 @@ WLRouter.post(
   }
 );
 
+// Get a movie by its ID
+MoviesRouter.get("/:movieID", JWTTokenAuth, async (req, res, next) => {
+  try {
+    const movie = await MoviesModel.findById(req.params.movieID);
+    if (movie) res.send(movie);
+    else
+      next(
+        createHttpError(
+          404,
+          `Movie with the ID of ${req.params.movieID} not found!`
+        )
+      );
+  } catch (error) {
+    next(error);
+  }
+});
+
 // Remove a movie from a Watchlist
 WLRouter.delete(
   "/:WLID/movies/:movieID",
