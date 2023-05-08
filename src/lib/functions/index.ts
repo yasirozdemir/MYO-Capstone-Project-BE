@@ -4,7 +4,7 @@ import createHttpError from "http-errors";
 import { IMovie } from "../../interfaces/IMovie";
 
 export function csvToArray(csv: string) {
-  return csv.split(", ").map((el) => el.trim());
+  return csv?.split(", ").map((el) => el.trim());
 }
 
 export const movieDealer = async (title: string, year?: string) => {

@@ -46,7 +46,11 @@ WLRouter.post("/", JWTTokenAuth, async (req, res, next) => {
 // Get a Watchlist with it's ID
 WLRouter.get("/:WLID", JWTTokenAuth, async (req, res, next) => {
   try {
-    const WL = await WLsModel.findById(req.params.WLID).populate("movies");
+    const WL = await WLsModel.findById(req.params.WLID).populate({
+      path: "members movies",
+      select:
+        "_id name surname avatar title released genres poster imdbRating likes",
+    });
     if (WL) res.send(WL);
     else
       next(
@@ -128,13 +132,17 @@ WLRouter.post(
     try {
       if (!(req as IUserRequest).isLiked) {
         const userID = (req as IUserRequest).user!._id;
-        await WLsModel.findByIdAndUpdate(req.params.WLID, {
-          $push: { likes: userID },
-        });
+        const watchlist = await WLsModel.findByIdAndUpdate(
+          req.params.WLID,
+          {
+            $push: { likes: userID },
+          },
+          { new: true, runValidators: true }
+        );
         await UsersModel.findByIdAndUpdate(userID, {
           $push: { likedWatchlists: req.params.WLID },
         });
-        res.send({ message: "Liked!" });
+        res.send(watchlist?.likes);
       } else {
         next(createHttpError(400, "You've already liked this watchlist!"));
       }
@@ -153,13 +161,17 @@ WLRouter.delete(
     try {
       if ((req as IUserRequest).isLiked) {
         const userID = (req as IUserRequest).user!._id;
-        await WLsModel.findByIdAndUpdate(req.params.WLID, {
-          $pull: { likes: userID },
-        });
+        const watchlist = await WLsModel.findByIdAndUpdate(
+          req.params.WLID,
+          {
+            $pull: { likes: userID },
+          },
+          { new: true, runValidators: true }
+        );
         await UsersModel.findByIdAndUpdate(userID, {
           $pull: { likedWatchlists: req.params.WLID },
         });
-        res.send({ message: "Disliked!" });
+        res.send(watchlist?.likes);
       } else {
         next(createHttpError(400, "You've already disliked this watchlist!"));
       }
