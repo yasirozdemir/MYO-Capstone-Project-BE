@@ -37,7 +37,7 @@ WLRouter.post("/", JWTTokenAuth, async (req, res, next) => {
     const newWL = new WLsModel({ ...req.body, members: [userID] });
     const { _id } = await newWL.save();
     await UsersModel.findByIdAndUpdate(userID, { $push: { watchlists: _id } });
-    res.status(201).send({ watchlistID: _id });
+    res.status(201).send(newWL);
   } catch (error) {
     next(error);
   }
