@@ -8,7 +8,6 @@ import {
   checkMovieInWL,
 } from "../../lib/middlewares";
 import createHttpError from "http-errors";
-import axios from "axios";
 import { movieDealer } from "../../lib/functions";
 const q2m = require("query-to-mongo");
 
@@ -24,8 +23,9 @@ MoviesRouter.get("/", JWTTokenAuth, async (req, res, next) => {
       .skip(options.skip)
       .limit(options.limit);
     const totalMovies = await MoviesModel.countDocuments(query.criteria);
+    const numberOfPages = Math.ceil(totalMovies / options.limit);
     const links = query.links(`${process.env.FE_URL}/movies`, totalMovies);
-    res.send({ totalMovies, movies, links });
+    res.send({ totalMovies, movies, links, numberOfPages });
   } catch (error) {
     next(error);
   }
