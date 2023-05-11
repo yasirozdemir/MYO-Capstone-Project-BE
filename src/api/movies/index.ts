@@ -31,6 +31,24 @@ MoviesRouter.get("/", JWTTokenAuth, async (req, res, next) => {
   }
 });
 
+// Get genres
+MoviesRouter.get("/genres", async (req, res, next) => {
+  try {
+    const filteredGenres = await MoviesModel.find().select("genres -_id");
+    const genres: string[] = [];
+    filteredGenres.forEach((movie) => {
+      movie.genres.forEach((genre) => {
+        if (!genres.includes(genre)) {
+          genres.push(genre);
+        }
+      });
+    });
+    res.send(genres);
+  } catch (error) {
+    next(error);
+  }
+});
+
 // Add a movie into a Watchlist
 WLRouter.post(
   "/:WLID/movies/:movieID",
