@@ -43,6 +43,7 @@ MoviesRouter.get("/genres", async (req, res, next) => {
         }
       });
     });
+    genres.sort();
     res.send(genres);
   } catch (error) {
     next(error);
