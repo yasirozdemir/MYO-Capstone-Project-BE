@@ -141,17 +141,21 @@ UsersRouter.get("/", JWTTokenAuth, async (req, res, next) => {
 //  Get users own info
 UsersRouter.get("/me", JWTTokenAuth, async (req, res, next) => {
   try {
-    const user = await UsersModel.findById(
-      (req as IUserRequest).user!._id
-    ).populate({
-      path: "watchlists likedWatchlists",
-      populate: {
-        path: "members",
+    const user = await UsersModel.findById((req as IUserRequest).user!._id)
+      .populate({
+        path: "watchlists likedWatchlists",
+        populate: {
+          path: "members",
+          model: "user",
+          select: "_id name surname",
+        },
+        select: "_id name cover members movies likes",
+      })
+      .populate({
+        path: "followers following",
         model: "user",
-        select: "_id name surname",
-      },
-      select: "_id name cover members movies likes createdAt",
-    });
+        select: "_id name surname avatar followers",
+      });
     res.send(user);
   } catch (error) {
     next(error);
@@ -175,15 +179,21 @@ UsersRouter.put("/me", JWTTokenAuth, async (req, res, next) => {
 // Get a user by their ID
 UsersRouter.get("/:userID", JWTTokenAuth, async (req, res, next) => {
   try {
-    const user = await UsersModel.findById(req.params.userID).populate({
-      path: "watchlists likedWatchlists",
-      populate: {
-        path: "members",
+    const user = await UsersModel.findById(req.params.userID)
+      .populate({
+        path: "watchlists likedWatchlists",
+        populate: {
+          path: "members",
+          model: "user",
+          select: "_id name surname",
+        },
+        select: "_id name cover members movies likes",
+      })
+      .populate({
+        path: "followers following",
         model: "user",
-        select: "_id name surname",
-      },
-      select: "_id name cover members movies likes createdAt",
-    });
+        select: "_id name surname avatar followers",
+      });
     if (user) res.send(user);
     else
       next(
