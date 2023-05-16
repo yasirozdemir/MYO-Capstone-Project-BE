@@ -1,4 +1,4 @@
-<h1 align="center">What a Movie API</h1>
+<h1 align="center">What ai Movie API</h1>
 
 ![db_structure](https://res.cloudinary.com/yasirdev/image/upload/v1683015717/WhataMovie/dev/logo.png)
 
@@ -15,7 +15,7 @@
 - [Live Frontend]() - Will be added soon.
 - [Frontend Repo](https://github.com/yasirozdemir/capstone-project-fe)
 
-- What a Movie is a web app that users can search for movies depending on their feeling, thoughts or desires. It uses OpenAI for the movie suggestions. The user can create watchlists with the people who follows them. Check documentation for more.
+- What ai Movie is a web app that users can search for movies depending on their feeling, thoughts or desires. It uses OpenAI for the movie suggestions. The user can create watchlists with the people who follows them. Check documentation for more.
 
 ## :open_file_folder: Documentation
 

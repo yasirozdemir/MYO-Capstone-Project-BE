@@ -20,7 +20,7 @@ const sendVerifyMail = (userMail, verifyURL) => __awaiter(void 0, void 0, void 0
     const msg = {
         to: userMail,
         from: process.env.SENDGRID_MAIL,
-        subject: "Welcome to What a Movie!",
+        subject: "Welcome to What ai Movie!",
         html: `<div style="display:flex; flex-direction: column; align-items: center;">
                 <div style="max-width: 175px">
                     <img style="width: 100%" src="https://res.cloudinary.com/yasirdev/image/upload/v1683015717/WhataMovie/dev/logo.png" alt="logo" />
