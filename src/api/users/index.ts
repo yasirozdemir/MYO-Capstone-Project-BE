@@ -258,13 +258,15 @@ UsersRouter.post(
         const user = await (
           await user2.save()
         ).populate({
-          path: "followers",
+          path: "followers following",
           model: "user",
           select: "_id name surname avatar followers",
         });
+        console.log(user);
         res.send({
           message: `Following ${user2.name} ${user2.surname}!`,
           followers: user.followers,
+          following: user.following,
         });
       } else {
         next(createHttpError(400, "You're already following this user!"));
@@ -296,13 +298,14 @@ UsersRouter.delete(
         const user = await (
           await user2.save()
         ).populate({
-          path: "followers",
+          path: "followers following",
           model: "user",
           select: "_id name surname avatar followers",
         });
         res.send({
           message: `Unfollowed ${user2.name} ${user2.surname}!`,
           followers: user.followers,
+          following: user.following,
         });
       } else {
         next(createHttpError(400, "You've already unfollowed this user!"));
