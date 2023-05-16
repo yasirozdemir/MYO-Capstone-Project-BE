@@ -69,7 +69,7 @@ UsersSchema.pre("save", function () {
 UsersSchema.pre("findOneAndUpdate", function () {
     return __awaiter(this, void 0, void 0, function* () {
         const updatedUser = this.getUpdate();
-        if (updatedUser.password) {
+        if (updatedUser && updatedUser.password) {
             const pw = updatedUser.password;
             const hashedPW = yield bcrypt_1.default.hash(pw, 11);
             updatedUser.password = hashedPW;
@@ -79,6 +79,7 @@ UsersSchema.pre("findOneAndUpdate", function () {
 UsersSchema.methods.toJSON = function () {
     const user = this.toObject();
     delete user.password;
+    delete user.refreshToken;
     delete user.__v;
     return user;
 };
@@ -90,10 +91,10 @@ UsersSchema.static("checkCredentials", function (email, pw) {
             if (passwordMatch)
                 return user;
             else
-                throw new http_errors_1.default[401]("Wrong password!");
+                throw new http_errors_1.default[400]("Wrong password!");
         }
         else
-            throw new http_errors_1.default[401]("Wrong email!");
+            throw new http_errors_1.default[400]("Wrong email!");
     });
 });
 exports.default = (0, mongoose_1.model)("user", UsersSchema);

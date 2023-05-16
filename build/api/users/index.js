@@ -140,7 +140,21 @@ UsersRouter.get("/", jwt_1.JWTTokenAuth, (req, res, next) => __awaiter(void 0, v
 //  Get users own info
 UsersRouter.get("/me", jwt_1.JWTTokenAuth, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const user = yield model_1.default.findById(req.user._id);
+        const user = yield model_1.default.findById(req.user._id)
+            .populate({
+            path: "watchlists likedWatchlists",
+            populate: {
+                path: "members",
+                model: "user",
+                select: "_id name surname",
+            },
+            select: "_id name cover members movies likes",
+        })
+            .populate({
+            path: "followers following",
+            model: "user",
+            select: "_id name surname avatar followers",
+        });
         res.send(user);
     }
     catch (error) {
@@ -160,7 +174,21 @@ UsersRouter.put("/me", jwt_1.JWTTokenAuth, (req, res, next) => __awaiter(void 0,
 // Get a user by their ID
 UsersRouter.get("/:userID", jwt_1.JWTTokenAuth, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const user = yield model_1.default.findById(req.params.userID);
+        const user = yield model_1.default.findById(req.params.userID)
+            .populate({
+            path: "watchlists likedWatchlists",
+            populate: {
+                path: "members",
+                model: "user",
+                select: "_id name surname",
+            },
+            select: "_id name cover members movies likes",
+        })
+            .populate({
+            path: "followers following",
+            model: "user",
+            select: "_id name surname avatar followers",
+        });
         if (user)
             res.send(user);
         else
@@ -190,8 +218,8 @@ UsersRouter.post("/me/avatar", jwt_1.JWTTokenAuth, cloudinary_1.avatarUploader, 
 // Delete current avatar
 UsersRouter.delete("/me/avatar", jwt_1.JWTTokenAuth, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        yield model_1.default.findOneAndUpdate({ _id: req.user._id }, {
-            avatar: "https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png",
+        yield model_1.default.findByIdAndUpdate(req.user._id, {
+            avatar: "https://res.cloudinary.com/yasirdev/image/upload/v1682762639/WhataMovie/users/avatars/user_default.jpg",
         });
         res.status(204).send();
     }
@@ -209,8 +237,16 @@ UsersRouter.post("/follow/:userID", jwt_1.JWTTokenAuth, middlewares_1.checkFollo
             user1.following = [...user1.following, user2._id];
             yield user1.save();
             user2.followers = [...user2.followers, user1._id];
-            yield user2.save();
-            res.send({ message: "Followed!" });
+            const user = yield (yield user2.save()).populate({
+                path: "followers following",
+                model: "user",
+                select: "_id name surname avatar followers",
+            });
+            res.send({
+                message: `Following ${user2.name} ${user2.surname}!`,
+                followers: user.followers,
+                following: user.following,
+            });
         }
         else {
             next((0, http_errors_1.default)(400, "You're already following this user!"));
@@ -230,8 +266,16 @@ UsersRouter.delete("/follow/:userID", jwt_1.JWTTokenAuth, middlewares_1.checkFol
             user1.following = user1.following.filter((id) => id.toString() !== user2._id.toString());
             yield user1.save();
             user2.followers = user2.followers.filter((id) => id.toString() !== user1._id.toString());
-            yield user2.save();
-            res.send({ message: "Unfollowed!" });
+            const user = yield (yield user2.save()).populate({
+                path: "followers following",
+                model: "user",
+                select: "_id name surname avatar followers",
+            });
+            res.send({
+                message: `Unfollowed ${user2.name} ${user2.surname}!`,
+                followers: user.followers,
+                following: user.following,
+            });
         }
         else {
             next((0, http_errors_1.default)(400, "You've already unfollowed this user!"));

@@ -41,7 +41,7 @@ WLRouter.post("/", jwt_1.JWTTokenAuth, (req, res, next) => __awaiter(void 0, voi
         const newWL = new model_1.default(Object.assign(Object.assign({}, req.body), { members: [userID] }));
         const { _id } = yield newWL.save();
         yield model_2.default.findByIdAndUpdate(userID, { $push: { watchlists: _id } });
-        res.status(201).send({ watchlistID: _id });
+        res.status(201).send(newWL);
     }
     catch (error) {
         next(error);
@@ -50,7 +50,10 @@ WLRouter.post("/", jwt_1.JWTTokenAuth, (req, res, next) => __awaiter(void 0, voi
 // Get a Watchlist with it's ID
 WLRouter.get("/:WLID", jwt_1.JWTTokenAuth, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const WL = yield model_1.default.findById(req.params.WLID);
+        const WL = yield model_1.default.findById(req.params.WLID).populate({
+            path: "members movies",
+            select: "_id name surname avatar title released genres poster imdbRating likes",
+        });
         if (WL)
             res.send(WL);
         else
@@ -62,10 +65,19 @@ WLRouter.get("/:WLID", jwt_1.JWTTokenAuth, (req, res, next) => __awaiter(void 0,
 }));
 // Get all the Watchlists that the User is a member of
 users_1.default.get("/:userID/watchlists", jwt_1.JWTTokenAuth, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
         const userID = req.params.userID;
-        const WLs = yield model_1.default.find({ members: { $in: [userID] } });
-        res.send(WLs);
+        if (userID === "me") {
+            const WLs = yield model_1.default.find({
+                members: { $in: [(_a = req.user) === null || _a === void 0 ? void 0 : _a._id] },
+            });
+            res.send(WLs);
+        }
+        else {
+            const WLs = yield model_1.default.find({ members: { $in: [userID] } });
+            res.send(WLs);
+        }
     }
     catch (error) {
         next(error);
@@ -99,13 +111,13 @@ WLRouter.post("/:WLID/likes", jwt_1.JWTTokenAuth, middlewares_1.checkIsLiked, (r
     try {
         if (!req.isLiked) {
             const userID = req.user._id;
-            yield model_1.default.findByIdAndUpdate(req.params.WLID, {
+            const watchlist = yield model_1.default.findByIdAndUpdate(req.params.WLID, {
                 $push: { likes: userID },
-            });
+            }, { new: true, runValidators: true });
             yield model_2.default.findByIdAndUpdate(userID, {
                 $push: { likedWatchlists: req.params.WLID },
             });
-            res.send({ message: "Liked!" });
+            res.send(watchlist === null || watchlist === void 0 ? void 0 : watchlist.likes);
         }
         else {
             next((0, http_errors_1.default)(400, "You've already liked this watchlist!"));
@@ -120,13 +132,13 @@ WLRouter.delete("/:WLID/likes", jwt_1.JWTTokenAuth, middlewares_1.checkIsLiked, 
     try {
         if (req.isLiked) {
             const userID = req.user._id;
-            yield model_1.default.findByIdAndUpdate(req.params.WLID, {
+            const watchlist = yield model_1.default.findByIdAndUpdate(req.params.WLID, {
                 $pull: { likes: userID },
-            });
+            }, { new: true, runValidators: true });
             yield model_2.default.findByIdAndUpdate(userID, {
                 $pull: { likedWatchlists: req.params.WLID },
             });
-            res.send({ message: "Disliked!" });
+            res.send(watchlist === null || watchlist === void 0 ? void 0 : watchlist.likes);
         }
         else {
             next((0, http_errors_1.default)(400, "You've already disliked this watchlist!"));

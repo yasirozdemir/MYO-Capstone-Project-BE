@@ -30,7 +30,6 @@ const sendVerifyMail = (userMail, verifyURL) => __awaiter(void 0, void 0, void 0
     };
     try {
         yield mail_1.default.send(msg);
-        console.log("Verify mail sent!");
     }
     catch (error) {
         console.log(error);

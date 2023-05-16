@@ -31,8 +31,28 @@ MoviesRouter.get("/", jwt_1.JWTTokenAuth, (req, res, next) => __awaiter(void 0, 
             .skip(options.skip)
             .limit(options.limit);
         const totalMovies = yield model_1.default.countDocuments(query.criteria);
+        const numberOfPages = Math.ceil(totalMovies / options.limit);
         const links = query.links(`${process.env.FE_URL}/movies`, totalMovies);
-        res.send({ totalMovies, movies, links });
+        res.send({ totalMovies, movies, links, numberOfPages });
+    }
+    catch (error) {
+        next(error);
+    }
+}));
+// Get genres
+MoviesRouter.get("/genres", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const filteredGenres = yield model_1.default.find().select("genres -_id");
+        const genres = [];
+        filteredGenres.forEach((movie) => {
+            movie.genres.forEach((genre) => {
+                if (!genres.includes(genre)) {
+                    genres.push(genre);
+                }
+            });
+        });
+        genres.sort();
+        res.send(genres);
     }
     catch (error) {
         next(error);
@@ -50,6 +70,19 @@ watchlists_1.default.post("/:WLID/movies/:movieID", jwt_1.JWTTokenAuth, middlewa
         else {
             next((0, http_errors_1.default)(400, "This movie is already added to this watchlist!"));
         }
+    }
+    catch (error) {
+        next(error);
+    }
+}));
+// Get a movie by its ID
+MoviesRouter.get("/:movieID", jwt_1.JWTTokenAuth, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const movie = yield model_1.default.findById(req.params.movieID);
+        if (movie)
+            res.send(movie);
+        else
+            next((0, http_errors_1.default)(404, `Movie with the ID of ${req.params.movieID} not found!`));
     }
     catch (error) {
         next(error);

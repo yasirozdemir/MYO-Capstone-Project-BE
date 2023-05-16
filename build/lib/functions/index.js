@@ -17,7 +17,7 @@ const axios_1 = __importDefault(require("axios"));
 const model_1 = __importDefault(require("../../api/movies/model"));
 const http_errors_1 = __importDefault(require("http-errors"));
 function csvToArray(csv) {
-    return csv.split(", ").map((el) => el.trim());
+    return csv === null || csv === void 0 ? void 0 : csv.split(", ").map((el) => el.trim());
 }
 exports.csvToArray = csvToArray;
 const movieDealer = (title, year) => __awaiter(void 0, void 0, void 0, function* () {
