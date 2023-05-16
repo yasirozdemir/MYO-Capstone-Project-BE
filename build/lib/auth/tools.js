@@ -16,7 +16,7 @@ exports.verifyVerificationToken = exports.createVerificationToken = exports.veri
 const http_errors_1 = __importDefault(require("http-errors"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const model_1 = __importDefault(require("../../api/users/model"));
-require("dotenv").config;
+require("dotenv").config();
 const { JWT_SECRET, JWT_REFRESH_SECRET, JWT_VERIFY_SECRET } = process.env;
 const createTokens = (user) => __awaiter(void 0, void 0, void 0, function* () {
     const accessToken = yield (0, exports.createAccessToken)({

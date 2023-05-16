@@ -1,7 +1,7 @@
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import UsersModel from "../../api/users/model";
 import { createAccessToken } from "./tools";
-require("dotenv").config;
+require("dotenv").config();
 
 const { CLIENT_ID, CLIENT_SECRET, API_URL } = process.env;
 
