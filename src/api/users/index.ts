@@ -262,7 +262,6 @@ UsersRouter.post(
           model: "user",
           select: "_id name surname avatar followers",
         });
-        console.log(user);
         res.send({
           message: `Following ${user2.name} ${user2.surname}!`,
           followers: user.followers,

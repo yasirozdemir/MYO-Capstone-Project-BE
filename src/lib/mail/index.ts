@@ -16,7 +16,6 @@ export const sendVerifyMail = async (userMail: string, verifyURL: string) => {
   };
   try {
     await sgMail.send(msg);
-    console.log("Verify mail sent!");
   } catch (error) {
     console.log(error);
   }
