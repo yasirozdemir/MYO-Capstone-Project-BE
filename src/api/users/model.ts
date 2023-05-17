@@ -19,7 +19,6 @@ const UsersSchema = new Schema({
   likedWatchlists: [{ type: mongoose.Types.ObjectId, ref: "watchlist" }],
   followers: [{ type: mongoose.Types.ObjectId, ref: "user" }],
   following: [{ type: mongoose.Types.ObjectId, ref: "user" }],
-  refreshToken: { type: String },
   googleID: { type: String },
 });
 
@@ -44,7 +43,6 @@ UsersSchema.pre("findOneAndUpdate", async function () {
 UsersSchema.methods.toJSON = function () {
   const user = this.toObject();
   delete user.password;
-  delete user.refreshToken;
   delete user.__v;
   return user;
 };

@@ -5,7 +5,6 @@ import { avatarUploader } from "../../lib/cloudinary";
 import { IUserRequest, JWTTokenAuth } from "../../lib/auth/jwt";
 import {
   createAccessToken,
-  createRefreshToken,
   createVerificationToken,
   verifyVerificationToken,
 } from "../../lib/auth/tools";
@@ -29,17 +28,12 @@ UsersRouter.post("/", async (req, res, next) => {
         verified: user.verified,
       };
       const accessToken = await createAccessToken(payload);
-      const refreshToken = await createRefreshToken(payload);
       const verificationToken = await createVerificationToken(payload);
       const verifyURL = `${process.env.API_URL}/users/verify?token=${verificationToken}`;
       sendVerifyMail(user.email, verifyURL);
-      await UsersModel.findByIdAndUpdate(user._id, {
-        refreshToken: refreshToken,
-      });
       res.status(201).send({
         user,
         accessToken,
-        refreshToken,
       });
     } else {
       next(createHttpError(400, "The email is already in use!"));
@@ -85,11 +79,7 @@ UsersRouter.post("/session", async (req, res, next) => {
         verified: user.verified,
       };
       const accessToken = await createAccessToken(payload);
-      const refreshToken = await createRefreshToken(payload);
-      await UsersModel.findByIdAndUpdate(user._id, {
-        refreshToken: refreshToken,
-      });
-      res.send({ user, accessToken, refreshToken });
+      res.send({ user, accessToken });
     }
   } catch (error) {
     next(error);
@@ -115,18 +105,6 @@ UsersRouter.get(
     }
   }
 );
-
-// Log out
-UsersRouter.delete("/session", JWTTokenAuth, async (req, res, next) => {
-  try {
-    await UsersModel.findByIdAndUpdate((req as IUserRequest).user!._id, {
-      refreshToken: "",
-    });
-    res.send();
-  } catch (error) {
-    next(error);
-  }
-});
 
 // Get all the users in the DB
 UsersRouter.get("/", JWTTokenAuth, async (req, res, next) => {

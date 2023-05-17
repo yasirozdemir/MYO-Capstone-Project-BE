@@ -1,9 +1,9 @@
 import createHttpError from "http-errors";
 import { RequestHandler, Request } from "express";
-import { verifyAccessToken, TokenPayload } from "./tools";
+import { verifyAccessToken, ITokenPayload } from "./tools";
 
 export interface IUserRequest extends Request {
-  user?: TokenPayload;
+  user?: ITokenPayload;
   isLiked?: boolean;
 }
 

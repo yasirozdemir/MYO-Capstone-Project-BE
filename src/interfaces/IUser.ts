@@ -10,7 +10,6 @@ export interface IUser {
   likedWatchlists: string[];
   followers: string[];
   following: string[];
-  refreshToken: string;
 }
 
 export interface IUserDocument extends IUser, Document {}
