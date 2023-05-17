@@ -211,7 +211,7 @@ UsersRouter.delete("/me/avatar", JWTTokenAuth, async (req, res, next) => {
   try {
     await UsersModel.findByIdAndUpdate((req as IUserRequest).user!._id, {
       avatar:
-        "https://res.cloudinary.com/yasirdev/image/upload/v1682762639/WhataMovie/users/avatars/user_default.jpg",
+        "https://res.cloudinary.com/yasirdev/image/upload/v1684314041/WhataMovie/users/avatars/user_default.jpg",
     });
     res.status(204).send();
   } catch (error) {

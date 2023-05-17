@@ -46,7 +46,7 @@ const UsersSchema = new mongoose_1.Schema({
     avatar: {
         type: String,
         required: true,
-        default: "https://res.cloudinary.com/yasirdev/image/upload/v1682762639/WhataMovie/users/avatars/user_default.jpg",
+        default: "https://res.cloudinary.com/yasirdev/image/upload/v1684314041/WhataMovie/users/avatars/user_default.jpg",
     },
     verified: { type: Boolean, default: false },
     watchlists: [{ type: mongoose_1.default.Types.ObjectId, ref: "watchlist" }],
