@@ -17,7 +17,7 @@ const q2m = require("query-to-mongo");
 const WLRouter = express.Router();
 
 // Get all the Watchlists in the DB
-WLRouter.get("/", JWTTokenAuth, async (req, res, next) => {
+WLRouter.get("/", async (req, res, next) => {
   try {
     const query = q2m(req.query);
     const WLs = await WLsModel.find(query.criteria).populate(
@@ -44,7 +44,7 @@ WLRouter.post("/", JWTTokenAuth, async (req, res, next) => {
 });
 
 // Get a Watchlist with it's ID
-WLRouter.get("/:WLID", JWTTokenAuth, async (req, res, next) => {
+WLRouter.get("/:WLID", async (req, res, next) => {
   try {
     const WL = await WLsModel.findById(req.params.WLID).populate({
       path: "members movies",

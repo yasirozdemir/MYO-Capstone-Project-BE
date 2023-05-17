@@ -22,7 +22,7 @@ const functions_1 = require("../../lib/functions");
 const q2m = require("query-to-mongo");
 const MoviesRouter = express_1.default.Router();
 // Get all the Movies in the DB
-MoviesRouter.get("/", jwt_1.JWTTokenAuth, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+MoviesRouter.get("/", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const query = q2m(req.query);
         const options = query.options;
@@ -76,7 +76,7 @@ watchlists_1.default.post("/:WLID/movies/:movieID", jwt_1.JWTTokenAuth, middlewa
     }
 }));
 // Get a movie by its ID
-MoviesRouter.get("/:movieID", jwt_1.JWTTokenAuth, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+MoviesRouter.get("/:movieID", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const movie = yield model_1.default.findById(req.params.movieID);
         if (movie)

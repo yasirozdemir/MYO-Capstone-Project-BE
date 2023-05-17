@@ -53,7 +53,6 @@ const UsersSchema = new mongoose_1.Schema({
     likedWatchlists: [{ type: mongoose_1.default.Types.ObjectId, ref: "watchlist" }],
     followers: [{ type: mongoose_1.default.Types.ObjectId, ref: "user" }],
     following: [{ type: mongoose_1.default.Types.ObjectId, ref: "user" }],
-    refreshToken: { type: String },
     googleID: { type: String },
 });
 UsersSchema.pre("save", function () {
@@ -79,7 +78,6 @@ UsersSchema.pre("findOneAndUpdate", function () {
 UsersSchema.methods.toJSON = function () {
     const user = this.toObject();
     delete user.password;
-    delete user.refreshToken;
     delete user.__v;
     return user;
 };

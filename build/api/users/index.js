@@ -35,17 +35,12 @@ UsersRouter.post("/", (req, res, next) => __awaiter(void 0, void 0, void 0, func
                 verified: user.verified,
             };
             const accessToken = yield (0, tools_1.createAccessToken)(payload);
-            const refreshToken = yield (0, tools_1.createRefreshToken)(payload);
             const verificationToken = yield (0, tools_1.createVerificationToken)(payload);
             const verifyURL = `${process.env.API_URL}/users/verify?token=${verificationToken}`;
             (0, mail_1.sendVerifyMail)(user.email, verifyURL);
-            yield model_1.default.findByIdAndUpdate(user._id, {
-                refreshToken: refreshToken,
-            });
             res.status(201).send({
                 user,
                 accessToken,
-                refreshToken,
             });
         }
         else {
@@ -92,11 +87,7 @@ UsersRouter.post("/session", (req, res, next) => __awaiter(void 0, void 0, void 
                 verified: user.verified,
             };
             const accessToken = yield (0, tools_1.createAccessToken)(payload);
-            const refreshToken = yield (0, tools_1.createRefreshToken)(payload);
-            yield model_1.default.findByIdAndUpdate(user._id, {
-                refreshToken: refreshToken,
-            });
-            res.send({ user, accessToken, refreshToken });
+            res.send({ user, accessToken });
         }
     }
     catch (error) {
@@ -115,20 +106,8 @@ UsersRouter.get("/googleLogin", passport_1.default.authenticate("google", {
         next(error);
     }
 }));
-// Log out
-UsersRouter.delete("/session", jwt_1.JWTTokenAuth, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        yield model_1.default.findByIdAndUpdate(req.user._id, {
-            refreshToken: "",
-        });
-        res.send();
-    }
-    catch (error) {
-        next(error);
-    }
-}));
 // Get all the users in the DB
-UsersRouter.get("/", jwt_1.JWTTokenAuth, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+UsersRouter.get("/", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const users = yield model_1.default.find();
         res.send(users);

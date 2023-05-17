@@ -14,7 +14,7 @@ const q2m = require("query-to-mongo");
 const MoviesRouter = express.Router();
 
 // Get all the Movies in the DB
-MoviesRouter.get("/", JWTTokenAuth, async (req, res, next) => {
+MoviesRouter.get("/", async (req, res, next) => {
   try {
     const query = q2m(req.query);
     const options = query.options;
@@ -75,7 +75,7 @@ WLRouter.post(
 );
 
 // Get a movie by its ID
-MoviesRouter.get("/:movieID", JWTTokenAuth, async (req, res, next) => {
+MoviesRouter.get("/:movieID", async (req, res, next) => {
   try {
     const movie = await MoviesModel.findById(req.params.movieID);
     if (movie) res.send(movie);

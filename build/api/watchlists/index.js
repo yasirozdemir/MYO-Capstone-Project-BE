@@ -24,7 +24,7 @@ const q2m = require("query-to-mongo");
 // I'll call Watchlist WL
 const WLRouter = express_1.default.Router();
 // Get all the Watchlists in the DB
-WLRouter.get("/", jwt_1.JWTTokenAuth, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+WLRouter.get("/", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const query = q2m(req.query);
         const WLs = yield model_1.default.find(query.criteria).populate("members", "_id name surname avatar");
@@ -48,7 +48,7 @@ WLRouter.post("/", jwt_1.JWTTokenAuth, (req, res, next) => __awaiter(void 0, voi
     }
 }));
 // Get a Watchlist with it's ID
-WLRouter.get("/:WLID", jwt_1.JWTTokenAuth, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+WLRouter.get("/:WLID", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const WL = yield model_1.default.findById(req.params.WLID).populate({
             path: "members movies",

@@ -107,7 +107,7 @@ UsersRouter.get(
 );
 
 // Get all the users in the DB
-UsersRouter.get("/", JWTTokenAuth, async (req, res, next) => {
+UsersRouter.get("/", async (req, res, next) => {
   try {
     const users = await UsersModel.find();
     res.send(users);
