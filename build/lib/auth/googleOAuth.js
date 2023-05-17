@@ -38,7 +38,6 @@ const googleStrategy = new passport_google_oauth20_1.Strategy({
                 name: given_name,
                 surname: family_name,
                 email,
-                avatar: picture,
                 googleID: sub,
                 verified: true,
                 password: Math.random().toString(36).slice(-10),
