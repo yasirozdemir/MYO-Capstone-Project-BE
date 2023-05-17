@@ -10,7 +10,7 @@ const { JWT_SECRET, JWT_VERIFY_SECRET } = process.env;
 
 export const createAccessToken = (payload: ITokenPayload): Promise<string> =>
   new Promise((resolve, reject) =>
-    jwt.sign(payload, JWT_SECRET!, { expiresIn: "1h" }, (err, token) => {
+    jwt.sign(payload, JWT_SECRET!, { expiresIn: "1d" }, (err, token) => {
       if (err) reject(err);
       else resolve(token as string);
     })
