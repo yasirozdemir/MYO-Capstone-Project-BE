@@ -147,7 +147,21 @@ UsersRouter.put("/me", JWTTokenAuth, async (req, res, next) => {
       { _id: (req as IUserRequest).user!._id },
       req.body,
       { new: true, runValidators: true }
-    );
+    )
+      .populate({
+        path: "watchlists likedWatchlists",
+        populate: {
+          path: "members",
+          model: "user",
+          select: "_id name surname",
+        },
+        select: "_id name cover members movies likes",
+      })
+      .populate({
+        path: "followers following",
+        model: "user",
+        select: "_id name surname avatar followers",
+      });
     res.send(user);
   } catch (error) {
     next(error);

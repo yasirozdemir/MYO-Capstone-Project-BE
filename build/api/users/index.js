@@ -143,7 +143,21 @@ UsersRouter.get("/me", jwt_1.JWTTokenAuth, (req, res, next) => __awaiter(void 0,
 // Edit user
 UsersRouter.put("/me", jwt_1.JWTTokenAuth, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const user = yield model_1.default.findOneAndUpdate({ _id: req.user._id }, req.body, { new: true, runValidators: true });
+        const user = yield model_1.default.findOneAndUpdate({ _id: req.user._id }, req.body, { new: true, runValidators: true })
+            .populate({
+            path: "watchlists likedWatchlists",
+            populate: {
+                path: "members",
+                model: "user",
+                select: "_id name surname",
+            },
+            select: "_id name cover members movies likes",
+        })
+            .populate({
+            path: "followers following",
+            model: "user",
+            select: "_id name surname avatar followers",
+        });
         res.send(user);
     }
     catch (error) {
@@ -198,7 +212,7 @@ UsersRouter.post("/me/avatar", jwt_1.JWTTokenAuth, cloudinary_1.avatarUploader, 
 UsersRouter.delete("/me/avatar", jwt_1.JWTTokenAuth, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield model_1.default.findByIdAndUpdate(req.user._id, {
-            avatar: "https://res.cloudinary.com/yasirdev/image/upload/v1682762639/WhataMovie/users/avatars/user_default.jpg",
+            avatar: "https://res.cloudinary.com/yasirdev/image/upload/v1684314041/WhataMovie/users/avatars/user_default.jpg",
         });
         res.status(204).send();
     }
