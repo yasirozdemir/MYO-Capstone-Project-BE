@@ -7,7 +7,7 @@
   <a href="#open_file_folder-documentation">Documentation</a> &#xa0; | &#xa0;
   <a href="#rocket-technologies">Technologies</a> &#xa0; | &#xa0;
   <a href="#checkered_flag-starting">Starting</a> &#xa0; | &#xa0;
-  <a href="#bust_in_silhouette-author">Author</a>;
+  <a href="#bust_in_silhouette-author">Author</a>
 </p>
 
 ## :dart: Project Summary
