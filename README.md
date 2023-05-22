@@ -7,12 +7,12 @@
   <a href="#open_file_folder-documentation">Documentation</a> &#xa0; | &#xa0;
   <a href="#rocket-technologies">Technologies</a> &#xa0; | &#xa0;
   <a href="#checkered_flag-starting">Starting</a> &#xa0; | &#xa0;
-  <a href="#bust_in_silhouette-author">Author</a> &#xa0; | &#xa0;
+  <a href="#bust_in_silhouette-author">Author</a>;
 </p>
 
 ## :dart: Project Summary
 
-- [Live Frontend]() - Will be added soon.
+- [Live Frontend](https://what-ai-movie.vercel.app)
 - [Frontend Repo](https://github.com/yasirozdemir/capstone-project-fe)
 
 - What ai Movie is a web app that users can search for movies depending on their feeling, thoughts or desires. It uses OpenAI for the movie suggestions. The user can create watchlists with the people who follows them. Check documentation for more.
