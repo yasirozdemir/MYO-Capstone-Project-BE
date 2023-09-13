@@ -12,6 +12,7 @@
 
 ## :dart: Project Summary
 
+- [Presentation](https://youtu.be/_rA3CapbmYA?si=ExtdfMh6uaEFnATS)
 - [Live Frontend](https://what-ai-movie.vercel.app)
 - [Frontend Repo](https://github.com/yasirozdemir/capstone-project-fe)
 
